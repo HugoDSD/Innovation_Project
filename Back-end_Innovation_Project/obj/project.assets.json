@@ -88,11 +88,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj",
+      "projectUniqueName": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Innovation_Project\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj",
       "projectName": "Back-end_Innovation_Project",
-      "projectPath": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj",
+      "projectPath": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Innovation_Project\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj",
       "packagesPath": "C:\\Users\\aigle\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Back-end_Innovation_Project\\obj\\",
+      "outputPath": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Innovation_Project\\Back-end_Innovation_Project\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\aigle\\AppData\\Roaming\\NuGet\\NuGet.Config",
