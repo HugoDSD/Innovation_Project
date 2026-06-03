@@ -1,41 +1,66 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Back_end_Innovation_Project.MODEL;
+using Back_end_Innovation_Project.PERSIST;
+using Back_end_Innovation_Project.COMMON;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// ==========================================
+// 1. CONFIGURATION DES SERVICES (Le conteneur de dépendances)
+// ==========================================
 
+// Ajout des contrôleurs d'API
+builder.Services.AddControllers();
+
+// Configuration de la base de données PostgreSQL
+builder.Services.AddDbContext<AppDb>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Configuration de la sécurité (Identity)
+builder.Services.AddAuthorization();
+builder.Services.AddIdentityApiEndpoints<AppUser>()
+    .AddEntityFrameworkStores<AppDb>();
+
+// ==========================================
+// 2. CONSTRUCTION DE L'APPLICATION
+// ==========================================
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+// ==========================================
+// 3. CONFIGURATION DU PIPELINE HTTP (Les Middlewares)
+// ==========================================
 
-app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// app.UseMiddleware<ExceptionHandlingMiddleware>();  // Décommente cette ligne une fois qu'on auras ajouté la classe ExceptionHandlingMiddleware à ton projet
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+// Activation de la sécurité dans le pipeline
+app.UseAuthentication();
+app.UseAuthorization();
 
+// ==========================================
+// 4. CONFIGURATION DES ROUTES (Endpoints)
+// ==========================================
+
+// Expose automatiquement les routes d'inscription et de connexion (/register, /login)
+app.MapIdentityApi<AppUser>();
+/*
+    En lisant cette ligne, notre API va, dans les coulisses, générer et exposer automatiquement tout un groupe de routes pré-codées pour gérer la sécurité.
+    Ainsi on a déjà des routes prêtes à l'emploi pour :
+    - S'inscrire (/register)
+    - Se connecter (/login)
+    - Se déconnecter (/logout)
+    - Gérer les rôles (ajouter, supprimer, etc.)
+    - Gérer les utilisateurs (voir la liste, supprimer, etc.)
+    - Gérer les sessions (voir les sessions actives, les terminer, etc.)
+    - Gérer les tokens (générer, révoquer, etc.)
+    - Gérer les mots de passe (changer, réinitialiser, etc.)
+*/
+
+
+
+// Expose les futures routes de tes propres contrôleurs
+app.MapControllers();
+
+// Lancement du serveur
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
