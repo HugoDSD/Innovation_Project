@@ -1,4 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Back_end_Innovation_Project.COMMON;
+
 
 namespace Back_end_Innovation_Project.MODEL
 {
@@ -15,6 +18,9 @@ namespace Back_end_Innovation_Project.MODEL
 
     // Clé étrangère pour lier cette sauvegarde au bon utilisateur
         public string UserId { get; set; } = string.Empty;
+        public required string AppUserId { get; set; }
+    
+        [ForeignKey("AppUserId")]
         public AppUser? User { get; set; }
     }
 }

@@ -12,3 +12,6 @@ Package installé
     dotnet add package Microsoft.EntityFrameworkCore.Design                 (C'est le moteur d'analyse de ton code pour créer les migrations)
     Microsoft.EntityFrameworkCore.Tools                                     (fournit l'interface en ligne de commande pour gérer ta base de données.)
 
+Outils utilisés:
+ - Postgre 17.10
+ - Postman

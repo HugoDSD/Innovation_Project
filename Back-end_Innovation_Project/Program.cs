@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Back_end_Innovation_Project.MODEL;
 using Back_end_Innovation_Project.PERSIST;
 using Back_end_Innovation_Project.COMMON;
+using Back_end_Innovation_Project.LOGIC.Services;
+using Back_end_Innovation_Project.LOGIC.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,7 @@ builder.Services.AddIdentityApiEndpoints<AppUser>()
 // ==========================================
 // 2. CONSTRUCTION DE L'APPLICATION
 // ==========================================
+builder.Services.AddScoped<IAuthService, AuthService>(); // On dit à ASP.NET Core que chaque fois qu'on demande un IAuthService, il doit nous donner une instance de AuthService (qui est la classe concrète qui implémente notre interface IAuthService)
 var app = builder.Build();
 
 // ==========================================
@@ -42,8 +45,7 @@ app.UseAuthorization();
 // 4. CONFIGURATION DES ROUTES (Endpoints)
 // ==========================================
 
-// Expose automatiquement les routes d'inscription et de connexion (/register, /login)
-app.MapIdentityApi<AppUser>();
+
 /*
     En lisant cette ligne, notre API va, dans les coulisses, générer et exposer automatiquement tout un groupe de routes pré-codées pour gérer la sécurité.
     Ainsi on a déjà des routes prêtes à l'emploi pour :
