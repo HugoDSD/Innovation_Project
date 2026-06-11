@@ -5,6 +5,9 @@ using Back_end_Innovation_Project.PERSIST;
 using Back_end_Innovation_Project.COMMON;
 using Back_end_Innovation_Project.LOGIC.Services;
 using Back_end_Innovation_Project.LOGIC.Interfaces;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +27,33 @@ builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<AppUser>()
     .AddEntityFrameworkStores<AppDb>();
 
+
+
+// --- CONFIGURATION DE L'AUTHENTIFICATION JWT ---
+var jwtSecret = builder.Configuration["JwtSettings:Secret"] 
+    ?? throw new InvalidOperationException("Clé secrète JWT manquante.");
+
+builder.Services.AddAuthentication(options =>
+{
+    // On dit à l'API que par défaut, on va chercher un Token "Bearer" dans les requêtes
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+        ValidateIssuer = false,   // On désactive pour le développement local
+        ValidateAudience = false, // On désactive pour le développement local
+        ClockSkew = TimeSpan.Zero // Supprime le délai de tolérance de 5 min sur l'expiration
+    };
+});
+
+
+
+
 // ==========================================
 // 2. CONSTRUCTION DE L'APPLICATION
 // ==========================================
@@ -38,8 +68,8 @@ var app = builder.Build();
 // app.UseMiddleware<ExceptionHandlingMiddleware>();  // Décommente cette ligne une fois qu'on auras ajouté la classe ExceptionHandlingMiddleware à ton projet
 
 // Activation de la sécurité dans le pipeline
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseAuthentication(); // il permet de verifier qui notamment avec le token
+app.UseAuthorization();  // est ce qu'il en a le droit
 
 // ==========================================
 // 4. CONFIGURATION DES ROUTES (Endpoints)

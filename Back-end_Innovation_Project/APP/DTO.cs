@@ -17,3 +17,16 @@ public class RegisterDto
     
     public string? CompanyName { get; set; }
 }
+
+
+public class LoginDto
+{
+    [Required]
+    [EmailAddress]
+    public required string Email {get;set;}
+
+    public required string Password {get;set;}
+
+}
+
+

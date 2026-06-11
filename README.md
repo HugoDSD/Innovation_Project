@@ -11,6 +11,7 @@ Package installé
     dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore    (le pont entre le système de sécurité de Microsoft (Identity) et ta base de données (EF Core))
     dotnet add package Microsoft.EntityFrameworkCore.Design                 (C'est le moteur d'analyse de ton code pour créer les migrations)
     Microsoft.EntityFrameworkCore.Tools                                     (fournit l'interface en ligne de commande pour gérer ta base de données.)
+    dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer        (permet de générer les tokens )
 
 Outils utilisés:
  - Postgre 17.10

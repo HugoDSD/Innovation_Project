@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Back_end_Innovation_Project.LOGIC.Interfaces;
 using Back_end_Innovation_Project.APP.DTOs;
 
+
 namespace Back_end_Innovation_Project.APP.Controllers;
 
 [ApiController]
@@ -34,5 +35,17 @@ public class AuthController : ControllerBase
         }
 
         return BadRequest(result.Errors);
+    }
+
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginDto request)
+    {
+        var (success, token, errors) = await _authService.LoginUser(request.Email, request.Password);
+        if (success)
+        {
+            return Ok(new{message = "connexion établie", token =token});
+        }
+        return Unauthorized(errors);
     }
 }
