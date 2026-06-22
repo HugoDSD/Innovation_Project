@@ -5,22 +5,30 @@ using Back_end_Innovation_Project.COMMON;
 
 namespace Back_end_Innovation_Project.MODEL
 {
-    public class EvaluationHistory
+   public class EvaluationHistory
     {
-        [Key] // Cela force Entity Framework à utiliser cette propriété comme Clé Primaire
+        [Key]
         public int Id { get; set; }
-        public string ProjectName { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    // Préparation du terrain pour tes futurs calculs environnementaux
-        public string? AiScore { get; set; } // Ex: "UTILE", "MOYEN", "MIEUX SANS IA"
-        public double? EstimatedCarbonFootprint { get; set; } // En kg CO2e
-
-    // Clé étrangère pour lier cette sauvegarde au bon utilisateur
-        public string UserId { get; set; } = string.Empty;
-        public required string AppUserId { get; set; }
-    
-        [ForeignKey("AppUserId")]
+        public required string UserId { get; set; }
+        [ForeignKey("UserId")]
         public AppUser? User { get; set; }
+  
+        public string ModelName { get; set; } = string.Empty;
+        public string AiScore { get; set; } = string.Empty;
+
+
+        public double CarbonFootprint { get; set; }
+        public double WaterFootprintLiters { get; set; }
+        public double EnergyKwh { get; set; }
+
+        public double CostUsd { get; set; }
+        public double HoursSaved { get; set; }
+        public double RiskScore { get; set; }
+
+
+        public bool IsApproved { get; set; }
+        
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -26,6 +26,7 @@ builder.Services.AddDbContext<AppDb>(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<AppUser>()
     .AddEntityFrameworkStores<AppDb>();
+builder.Services.AddScoped<IEvaluationService, EvaluationServices>();
 
 
 

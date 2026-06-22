@@ -49,3 +49,17 @@ public class AuthController : ControllerBase
         return Unauthorized(errors);
     }
 }
+
+
+
+/*
+ControllerBase permet : 
+    - La gestion des réponses HTTP : C'est elle qui te fournit les méthodes comme 
+        Ok() (statut 200), 
+        BadRequest() (statut 400), 
+        Unauthorized() (statut 401) 
+        ou NotFound() (statut 404).
+
+    - L'accès au contexte de la requête : C'est grâce à ControllerBase que tu peux taper User pour aller lire le Token JWT,
+        ou accéder à Request et Response pour manipuler les en-têtes HTTP.
+*/
