@@ -25,8 +25,8 @@ public class ImpactCalculator
     {
         { "GPT OSS 20B", (1.5e-07, 6.0e-07) },
         { "GPT OSS 120B", (3.0e-06, 1.5e-05) },
-        { "DeepSeek V3.1", (1.4e-07, 2.8e-07) }
-                                                // A voir: DeepSeek R1 n'avait pas de prix dans le CSV fourni
+        { "DeepSeek V3.1", (1.4e-07, 2.8e-07) },
+        { "DeepSeek R1", (5.5e-07, 2.19e-06) }                                      
     };
 
     // --- LE MOTEUR DE CALCUL ---
@@ -34,7 +34,8 @@ public class ImpactCalculator
     {
         var result = new EvaluationResultDto();
 
-        // Correspond au "Kill Switch" dans le cas ou le critère Juridique et du Sensibilité est atteint
+
+        // vérification de la validité des entrées
         if (request.DataSensitivity == 5 && request.LegalRisk == 5)
         {
             result.IsApproved = false;
@@ -42,7 +43,7 @@ public class ImpactCalculator
             return result;
         }
 
-        // Vérification de sécurité (si le modèle envoyé par le front n'existe pas)
+        // calcule l'impact energétique, carbone et eau
         if (!_energyPerToken.ContainsKey(request.ModelName) || !_wueProvider.ContainsKey(request.Provider))
         {
             result.IsApproved = false;
@@ -50,7 +51,6 @@ public class ImpactCalculator
             return result;
         }
 
-        // ÉTAPE B : L'impact Environnemental
         double energyPerToken = _energyPerToken[request.ModelName];
         double totalTokens = request.InputTokens + request.OutputTokens;
         
@@ -58,21 +58,20 @@ public class ImpactCalculator
         result.TotalCarbonKg = result.TotalEnergyKwh * MixElectriqueFrance;
         result.TotalWaterLiters = result.TotalEnergyKwh * _wueProvider[request.Provider];
 
-        // ÉTAPE C : L'impact Économique
+        // Calcul de l'impact économique
         if (_costPerToken.TryGetValue(request.ModelName, out var costs))
         {
             result.TotalCostUsd = (request.InputTokens * costs.Input) + (request.OutputTokens * costs.Output);
         }
 
-        // ÉTAPE D : L'impact Social
+        // calcul de l'impact Social
         result.TotalHoursSaved = request.HoursSavedReports + request.HoursSavedImages + request.HoursSavedPresentations;
         
-        // Formule basique pour le risque (moyenne sur 5)
+       
         result.RiskScore = (request.DataSensitivity + request.LegalRisk) / 2.0;
 
-        // ÉTAPE E : L'équilibre final (Logique d'approbation)
-        // C'est ici que tu définis ta règle : qu'est-ce qui valide un projet ?
-        // Exemple simple : on valide si le gain de temps est supérieur à 1h et le risque moyen inférieur à 4
+        // Logique d'approbation
+        
         if (result.TotalHoursSaved > 1.0 && result.RiskScore < 4.0)
         {
             result.IsApproved = true;

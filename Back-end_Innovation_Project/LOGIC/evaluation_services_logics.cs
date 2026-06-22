@@ -10,21 +10,18 @@ namespace Back_end_Innovation_Project.LOGIC.Services;
 
 public class EvaluationServices : IEvaluationService
 {
-    // On injecte le DbContext pour pouvoir discuter avec PostgreSQL
     private readonly AppDb _context; 
-    
-
     public EvaluationServices(AppDb context)
     {
         _context = context;
     }
+    
     public async Task<EvaluationResultDto> EvaluateProjectAsync(EvaluationRequestDto request, string userId)
     {
-        // 1. On appelle le moteur mathématique (Pas besoin de Task.Run, c'est instantané)
+        //On utilise le calculateur pour obtenir les métriques et la décision d'approbation
         var calculator = new ImpactCalculator();
         var result = calculator.EvaluateProject(request);
 
-        // 2. Si le calculateur détecte un faux modèle IA, on arrête tout
         if (!result.IsApproved && result.Message.StartsWith("ERREUR"))
         {
             return result;
@@ -35,7 +32,7 @@ public class EvaluationServices : IEvaluationService
         {
             UserId = userId,
             ModelName = request.ModelName,
-            AiScore = "", // La note de l'IA est vide au moment du calcul
+            AiScore = "", // La note de l'IA est vide au moment du calcul et sera remplie plus tard par l'utilisateur par EvaluateAiScore
             CarbonFootprint = result.TotalCarbonKg,
             WaterFootprintLiters = result.TotalWaterLiters,
             EnergyKwh = result.TotalEnergyKwh,
@@ -46,25 +43,23 @@ public class EvaluationServices : IEvaluationService
             CreatedAt = DateTime.UtcNow
         };
 
-        // 4. On sauvegarde dans la base de données (C'est ici qu'on met le vrai "await" !)
+        // On sauvegarde dans la base de données 
         _context.EvaluationHistory.Add(history);
         await _context.SaveChangesAsync();
 
 
         result.EvaluationId = history.Id;
 
-        
-        // 5. On renvoie le résultat au contrôleur
+
         return result;
     }
 
     public async Task<EvaluationResultDto> EvaluateAiScoreAsync(int evaluationId, EvaluationAiScoreDto request, string userId)
     {
-        // 1. On récupère l'évaluation depuis la base de données
+        // On récupère l'évaluation depuis la base de données
         var evaluation = await _context.EvaluationHistory
                                        .FirstOrDefaultAsync(e => e.Id == evaluationId && e.UserId == userId);
 
-        // 2. Sécurité : si on ne trouve rien (ou si un utilisateur essaie de modifier le projet d'un autre)
         if (evaluation == null)
         {
             return new EvaluationResultDto
@@ -74,10 +69,8 @@ public class EvaluationServices : IEvaluationService
             };
         }
 
-        // 3. On met à jour la donnée en mémoire
         evaluation.AiScore = request.AiScore;
 
-        // 4. On publie la modification dans la base de données PostgreSQL
         await _context.SaveChangesAsync();
 
         return new EvaluationResultDto
@@ -141,9 +134,16 @@ public class EvaluationServices : IEvaluationService
             // 5. LE MAPPING VERS LE DTO (Boîte de sortie)
             var historyDtos = evaluations.Select(e => new EvaluationHistoryDTO
             {
-                Id = e.Id.ToString(), // Conversion en string (si ton ID en base est un int ou Guid)
-                CarbonFootprint = e.CarbonFootprint,
+                Id = e.Id.ToString(), 
+                ModelName = e.ModelName,
                 AiScore = e.AiScore,
+                CarbonFootprint = e.CarbonFootprint,
+                WaterFootprintLiters = e.WaterFootprintLiters,
+                EnergyKwh = e.EnergyKwh,
+                CostUsd = e.CostUsd,
+                HoursSaved = e.HoursSaved,
+                RiskScore = e.RiskScore,
+                IsApproved = e.IsApproved,
                 CreatedAt = e.CreatedAt
             });
 

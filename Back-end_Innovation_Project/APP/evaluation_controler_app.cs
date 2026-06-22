@@ -25,7 +25,7 @@ public class EvalController : ControllerBase
     [HttpPost("calculate")]
     public async Task<IActionResult> CalculateImpact(EvaluationRequestDto request)
     {
-        //  On récupère l'ID utilisateur extrait du Token
+        //  On récupère l'ID utilisateur extrait du header du token
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         // Sécurité supplémentaire au cas où le claim serait introuvable
@@ -47,34 +47,30 @@ public class EvalController : ControllerBase
     
 
     
-    
+    // l'id de l'évaluation est passé dans l'URL pour des raisons de sécurité et d'optimisation (RESTful design)
     [HttpPut("{RequestId}/score")]
     public async Task<IActionResult> EvaluateAiscore(int RequestId, [FromBody] EvaluationAiScoreDto request)
     {
-        // 1. Sécurité sur l'ID de la requête
+
         if (RequestId <= 0)
         {
             return BadRequest(new[] { "L'ID de la requête est invalide." });
         }
 
-        // 2. On récupère l'ID utilisateur extrait du Token
+        // 2. On récupère l'ID utilisateur extrait du Token comme pour l'evaluation
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userIdFromToken))
         {
             return Unauthorized(new[] { "Impossible d'identifier l'utilisateur à partir du token." });
         } 
-
-        // 3. On appelle le service pour mettre à jour la base de données
         var result = await _evaluationService.EvaluateAiScoreAsync(RequestId, request, userIdFromToken);
 
-        // 4. Gestion des erreurs (ex: projet introuvable ou erreur de droits)
         if (!result.IsApproved && (result.Message.StartsWith("ERREUR") || result.Message.Contains("introuvable")))
         {
             return BadRequest(result);
         }
 
-        // 5. Le fameux retour propre qui évite d'envoyer les zéros (Carbone, Eau, etc.)
         return Ok(new 
         { 
             isApproved = result.IsApproved,
@@ -86,15 +82,14 @@ public class EvalController : ControllerBase
     [HttpGet("history")]
     public async  Task<IActionResult> GetUserHistory( double? minCarbon = null,  double? maxCarbon = null,string? aiScore = null, DateTime? startDate = null, DateTime? endDate = null)
     {
-        //  On récupère l'ID utilisateur extrait du Token
+        //  On récupère l'ID utilisateur extrait du Token comme pour l'evaluation
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        // Sécurité supplémentaire au cas où le claim serait introuvable
         if (string.IsNullOrEmpty(userIdFromToken))
         {
             return Unauthorized(new[] { "Impossible d'identifier l'utilisateur à partir du token." });
         } 
 
+        
         var (success, history, errors) = await _evaluationService.GetUserHistoryAsync(userIdFromToken, minCarbon, maxCarbon, aiScore, startDate, endDate);
 
         if (!success)
