@@ -114,14 +114,16 @@ public class EvaluationServices : IEvaluationService
 
             if (startDate.HasValue)
             {
-                query = query.Where(h => h.CreatedAt >= startDate.Value);
+                var startUtc = DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc);
+                query = query.Where(h => h.CreatedAt >= startUtc);
             }
 
             if (endDate.HasValue)
             {
                 // On met l'heure à 23:59:59 pour inclure toute la journée de fin
                 var endOfDay = endDate.Value.Date.AddDays(1).AddTicks(-1);
-                query = query.Where(h => h.CreatedAt <= endOfDay);
+                var endUtc = DateTime.SpecifyKind(endOfDay, DateTimeKind.Utc);
+                query = query.Where(h => h.CreatedAt <= endUtc);
             }
 
             // 3. LE TRI (Optionnel mais recommandé)
