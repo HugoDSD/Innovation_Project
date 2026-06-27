@@ -58,12 +58,13 @@ Innovation_Project/
 │       ├── pages/                   # LoginPage, MainPage
 │       ├── components/              # ResultsSection, AILevelIndicator, ImpactCards
 │       └── router.js
-├── Back-end_Innovation_Project/     # ASP.NET Core API
-│   ├── APP/                         # Controllers + DTOs
-│   ├── LOGIC/                       # Services, interfaces, ImpactCalculator
-│   ├── PERSIST/                     # EF Core DbContext
-│   ├── MODEL/                       # AppUser, EvaluationHistory
-│   ├── COMMON/                      # Error codes, ServiceException
+├── backend/                         # ASP.NET Core API
+│   ├── App/                         # Controllers + DTOs
+│   ├── Logic/                       # Services, ImpactCalculator
+│   ├── Domain/                      # Service interfaces
+│   ├── Persist/                     # EF Core DbContext
+│   ├── Model/                       # AppUser, EvaluationHistory
+│   ├── Common/                      # Error codes, ServiceException
 │   └── Migrations/
 ├── BD/                              # PostgreSQL backup
 ├── Bruno/                           # API test collection
@@ -87,8 +88,8 @@ Innovation_Project/
 `appsettings.json` and `launchSettings.json` are excluded from git for security. Request them from the team, then place them at:
 
 ```
-Back-end_Innovation_Project/appsettings.json
-Back-end_Innovation_Project/Properties/launchSettings.json
+backend/appsettings.json
+backend/Properties/launchSettings.json
 ```
 
 `appsettings.json` must contain:
@@ -110,7 +111,7 @@ Back-end_Innovation_Project/Properties/launchSettings.json
 Create the PostgreSQL database, then apply migrations:
 
 ```bash
-cd Back-end_Innovation_Project
+cd backend
 dotnet ef database update
 ```
 
@@ -123,7 +124,7 @@ psql -U postgres -d <db_name> < BD/Innovation_project_BackUp.sql
 ### 3. Install backend dependencies
 
 ```bash
-cd Back-end_Innovation_Project
+cd backend
 dotnet restore
 ```
 
@@ -141,7 +142,7 @@ npm install
 ### Backend
 
 ```bash
-cd Back-end_Innovation_Project
+cd backend
 dotnet run
 ```
 

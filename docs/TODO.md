@@ -883,7 +883,7 @@ git commit -m "feat: add history page with mock data matching EvaluationHistoryD
 Without this, the browser blocks every request from port 5173 to port 5051.
 
 **Files:**
-- Modify: `Back-end_Innovation_Project/Program.cs`
+- Modify: `backend/Program.cs`
 
 - [ ] **Add CORS service** in the service configuration block, before `var app = builder.Build()`:
 
@@ -910,7 +910,7 @@ app.UseCors("FrontendDev");
 - [ ] **Commit**
 
 ```bash
-git add Back-end_Innovation_Project/Program.cs
+git add backend/Program.cs
 git commit -m "feat: add CORS policy for local frontend dev"
 ```
 
@@ -1283,12 +1283,12 @@ git commit -m "feat: connect history page to real backend API"
 ## Task 11 — Translate backend French comments to English
 
 **Files:**
-- Modify: `Back-end_Innovation_Project/Program.cs`
-- Modify: `Back-end_Innovation_Project/APP/auth_controler_app.cs`
-- Modify: `Back-end_Innovation_Project/APP/evaluation_controler_app.cs`
-- Modify: `Back-end_Innovation_Project/LOGIC/auth_controler_logic.cs`
-- Modify: `Back-end_Innovation_Project/LOGIC/evaluation_services_logics.cs`
-- Modify: `Back-end_Innovation_Project/LOGIC/Calculator.cs`
+- Modify: `backend/Program.cs`
+- Modify: `backend/APP/auth_controler_app.cs`
+- Modify: `backend/APP/evaluation_controler_app.cs`
+- Modify: `backend/LOGIC/auth_controler_logic.cs`
+- Modify: `backend/LOGIC/evaluation_services_logics.cs`
+- Modify: `backend/LOGIC/Calculator.cs`
 
 Translate all French comments to English. UI-facing strings returned in API responses (error messages) may stay in French.
 
@@ -1297,7 +1297,7 @@ Translate all French comments to English. UI-facing strings returned in API resp
 - [ ] **Commit**
 
 ```bash
-git add Back-end_Innovation_Project/
+git add backend/
 git commit -m "chore: translate backend comments to English"
 ```
 
