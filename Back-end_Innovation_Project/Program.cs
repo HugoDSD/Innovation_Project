@@ -55,6 +55,17 @@ builder.Services.AddAuthentication(options =>
 
 
 
+// --- CONFIGURATION DU CORS (autorise le frontend local) ---
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendDev", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // ==========================================
 // 2. CONSTRUCTION DE L'APPLICATION
 // ==========================================
@@ -67,6 +78,9 @@ var app = builder.Build();
 
 
 // app.UseMiddleware<ExceptionHandlingMiddleware>();  // Décommente cette ligne une fois qu'on auras ajouté la classe ExceptionHandlingMiddleware à ton projet
+
+// Activation du CORS (avant l'authentification)
+app.UseCors("FrontendDev");
 
 // Activation de la sécurité dans le pipeline
 app.UseAuthentication(); // il permet de verifier qui notamment avec le token
