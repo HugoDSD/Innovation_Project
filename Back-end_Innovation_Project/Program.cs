@@ -12,17 +12,17 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 // ==========================================
-// 1. CONFIGURATION DES SERVICES (Le conteneur de dépendances)
+// 1. SERVICE CONFIGURATION (the dependency container)
 // ==========================================
 
-// Ajout des contrôleurs d'API
+// Add the API controllers
 builder.Services.AddControllers();
 
-// Configuration de la base de données PostgreSQL
+// PostgreSQL database configuration
 builder.Services.AddDbContext<AppDb>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configuration de la sécurité (Identity)
+// Security configuration (Identity)
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<AppUser>()
     .AddEntityFrameworkStores<AppDb>();
@@ -30,13 +30,13 @@ builder.Services.AddScoped<IEvaluationService, EvaluationServices>();
 
 
 
-// --- CONFIGURATION DE L'AUTHENTIFICATION JWT ---
-var jwtSecret = builder.Configuration["JwtSettings:Secret"] 
+// --- JWT AUTHENTICATION CONFIGURATION ---
+var jwtSecret = builder.Configuration["JwtSettings:Secret"]
     ?? throw new InvalidOperationException("Clé secrète JWT manquante.");
 
 builder.Services.AddAuthentication(options =>
 {
-    // On dit à l'API que par défaut, on va chercher un Token "Bearer" dans les requêtes
+    // Tell the API to look for a "Bearer" token in requests by default
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
@@ -46,16 +46,16 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
-        ValidateIssuer = false,   // On désactive pour le développement local
-        ValidateAudience = false, // On désactive pour le développement local
-        ClockSkew = TimeSpan.Zero // Supprime le délai de tolérance de 5 min sur l'expiration
+        ValidateIssuer = false,   // Disabled for local development
+        ValidateAudience = false, // Disabled for local development
+        ClockSkew = TimeSpan.Zero // Removes the default 5 min tolerance on expiration
     };
 });
 
 
 
 
-// --- CONFIGURATION DU CORS (autorise le frontend local) ---
+// --- CORS CONFIGURATION (allows the local frontend) ---
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendDev", policy =>
@@ -67,47 +67,47 @@ builder.Services.AddCors(options =>
 });
 
 // ==========================================
-// 2. CONSTRUCTION DE L'APPLICATION
+// 2. APPLICATION BUILD
 // ==========================================
-builder.Services.AddScoped<IAuthService, AuthService>(); // On dit à ASP.NET Core que chaque fois qu'on demande un IAuthService, il doit nous donner une instance de AuthService (qui est la classe concrète qui implémente notre interface IAuthService)
+builder.Services.AddScoped<IAuthService, AuthService>(); // Tell ASP.NET Core to provide an AuthService instance (the concrete class implementing IAuthService) whenever an IAuthService is requested
 var app = builder.Build();
 
 // ==========================================
-// 3. CONFIGURATION DU PIPELINE HTTP (Les Middlewares)
+// 3. HTTP PIPELINE CONFIGURATION (the middlewares)
 // ==========================================
 
 
-// app.UseMiddleware<ExceptionHandlingMiddleware>();  // Décommente cette ligne une fois qu'on auras ajouté la classe ExceptionHandlingMiddleware à ton projet
+// app.UseMiddleware<ExceptionHandlingMiddleware>();  // Uncomment this line once the ExceptionHandlingMiddleware class is added to the project
 
-// Activation du CORS (avant l'authentification)
+// Enable CORS (before authentication)
 app.UseCors("FrontendDev");
 
-// Activation de la sécurité dans le pipeline
-app.UseAuthentication(); // il permet de verifier qui notamment avec le token
-app.UseAuthorization();  // est ce qu'il en a le droit
+// Enable security in the pipeline
+app.UseAuthentication(); // verifies who the caller is, notably via the token
+app.UseAuthorization();  // checks whether they are allowed
 
 // ==========================================
-// 4. CONFIGURATION DES ROUTES (Endpoints)
+// 4. ROUTE CONFIGURATION (Endpoints)
 // ==========================================
 
 
 /*
-    En lisant cette ligne, notre API va, dans les coulisses, générer et exposer automatiquement tout un groupe de routes pré-codées pour gérer la sécurité.
-    Ainsi on a déjà des routes prêtes à l'emploi pour :
-    - S'inscrire (/register)
-    - Se connecter (/login)
-    - Se déconnecter (/logout)
-    - Gérer les rôles (ajouter, supprimer, etc.)
-    - Gérer les utilisateurs (voir la liste, supprimer, etc.)
-    - Gérer les sessions (voir les sessions actives, les terminer, etc.)
-    - Gérer les tokens (générer, révoquer, etc.)
-    - Gérer les mots de passe (changer, réinitialiser, etc.)
+    With this line, the API automatically generates and exposes a whole group of pre-built routes to handle security.
+    We already get ready-to-use routes to:
+    - Register (/register)
+    - Log in (/login)
+    - Log out (/logout)
+    - Manage roles (add, remove, etc.)
+    - Manage users (list, delete, etc.)
+    - Manage sessions (view active sessions, end them, etc.)
+    - Manage tokens (generate, revoke, etc.)
+    - Manage passwords (change, reset, etc.)
 */
 
 
 
-// Expose les futures routes de tes propres contrôleurs
+// Expose the routes of our own controllers
 app.MapControllers();
 
-// Lancement du serveur
+// Start the server
 app.Run();

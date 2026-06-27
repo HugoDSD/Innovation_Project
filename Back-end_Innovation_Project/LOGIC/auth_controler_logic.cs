@@ -14,7 +14,7 @@ namespace Back_end_Innovation_Project.LOGIC.Services;
 public class AuthService : IAuthService
 {
     private readonly UserManager<AppUser> _userManager;
-    private readonly IConfiguration _configuration; // permet de lire le fichier de configuration (appsetting.json) pour récupérer la clé secrète du JWT 
+    private readonly IConfiguration _configuration; // reads the configuration file (appsettings.json) to retrieve the JWT secret key
 
     public AuthService(UserManager<AppUser> userManager, IConfiguration configuration  )
     {
@@ -40,7 +40,7 @@ public class AuthService : IAuthService
             return (true, Array.Empty<string>());
         }
 
-        // Si ça échoue, on extrait les descriptions des erreurs
+        // On failure, extract the error descriptions
         var errors = result.Errors.Select(e => e.Description);
         return (false, errors);
     }

@@ -18,7 +18,7 @@ public class EvaluationServices : IEvaluationService
     
     public async Task<EvaluationResultDto> EvaluateProjectAsync(EvaluationRequestDto request, string userId)
     {
-        //On utilise le calculateur pour obtenir les métriques et la décision d'approbation
+        // Use the calculator to get the metrics and the approval decision
         var calculator = new ImpactCalculator();
         var result = calculator.EvaluateProject(request);
 
@@ -27,12 +27,12 @@ public class EvaluationServices : IEvaluationService
             return result;
         }
 
-        // 3. On prépare la "boîte" pour PostgreSQL avec toutes les nouvelles métriques
+        // 3. Prepare the record for PostgreSQL with all the new metrics
         var history = new EvaluationHistory
         {
             UserId = userId,
             ModelName = request.ModelName,
-            AiScore = "", // La note de l'IA est vide au moment du calcul et sera remplie plus tard par l'utilisateur par EvaluateAiScore
+            AiScore = "", // The AI score is empty at calculation time and is filled in later by the user via EvaluateAiScore
             CarbonFootprint = result.TotalCarbonKg,
             WaterFootprintLiters = result.TotalWaterLiters,
             EnergyKwh = result.TotalEnergyKwh,
@@ -43,7 +43,7 @@ public class EvaluationServices : IEvaluationService
             CreatedAt = DateTime.UtcNow
         };
 
-        // On sauvegarde dans la base de données 
+        // Save to the database
         _context.EvaluationHistory.Add(history);
         await _context.SaveChangesAsync();
 
@@ -56,7 +56,7 @@ public class EvaluationServices : IEvaluationService
 
     public async Task<EvaluationResultDto> EvaluateAiScoreAsync(int evaluationId, EvaluationAiScoreDto request, string userId)
     {
-        // On récupère l'évaluation depuis la base de données
+        // Retrieve the evaluation from the database
         var evaluation = await _context.EvaluationHistory
                                        .FirstOrDefaultAsync(e => e.Id == evaluationId && e.UserId == userId);
 
@@ -89,13 +89,13 @@ public class EvaluationServices : IEvaluationService
     {
         try
         {
-            // 1. LA REQUÊTE DE BASE (On cible l'utilisateur connecté)
-            // AsQueryable() permet de préparer la requête sans l'exécuter tout de suite.
+            // 1. BASE QUERY (target the logged-in user)
+            // AsQueryable() prepares the query without executing it immediately.
             var query = _context.EvaluationHistory
                                 .Where(h => h.UserId == userId)
                                 .AsQueryable();
 
-            // 2. L'EMPILAGE DES FILTRES (Dynamique)
+            // 2. STACKING THE FILTERS (dynamic)
             if (minCarbon.HasValue)
             {
                 query = query.Where(h => h.CarbonFootprint >= minCarbon.Value);
@@ -108,7 +108,7 @@ public class EvaluationServices : IEvaluationService
 
             if (!string.IsNullOrEmpty(aiScore))
             {
-                // Comparaison insensible à la casse au cas où le front enverrait "utile" au lieu de "Utile"
+                // Case-insensitive comparison in case the frontend sends "utile" instead of "Utile"
                 query = query.Where(h => h.AiScore.ToLower() == aiScore.ToLower());
             }
 
@@ -120,20 +120,20 @@ public class EvaluationServices : IEvaluationService
 
             if (endDate.HasValue)
             {
-                // On met l'heure à 23:59:59 pour inclure toute la journée de fin
+                // Set the time to 23:59:59 to include the whole end day
                 var endOfDay = endDate.Value.Date.AddDays(1).AddTicks(-1);
                 var endUtc = DateTime.SpecifyKind(endOfDay, DateTimeKind.Utc);
                 query = query.Where(h => h.CreatedAt <= endUtc);
             }
 
-            // 3. LE TRI (Optionnel mais recommandé)
-            // On trie du plus récent au plus ancien, c'est plus logique pour un historique.
+            // 3. SORTING (optional but recommended)
+            // Sort from newest to oldest, which makes more sense for a history.
             query = query.OrderByDescending(h => h.CreatedAt);
 
-            // 4. L'EXÉCUTION (Le moment où on envoie le SQL généré à PostgreSQL)
+            // 4. EXECUTION (when the generated SQL is sent to PostgreSQL)
             var evaluations = await query.ToListAsync();
 
-            // 5. LE MAPPING VERS LE DTO (Boîte de sortie)
+            // 5. MAPPING TO THE DTO (output object)
             var historyDtos = evaluations.Select(e => new EvaluationHistoryDTO
             {
                 Id = e.Id.ToString(), 
@@ -153,7 +153,7 @@ public class EvaluationServices : IEvaluationService
         }
         catch (Exception ex)
         {
-            // En cas de problème de connexion à la base de données
+            // In case of a database connection problem
             return (false, Enumerable.Empty<EvaluationHistoryDTO>(), new[] { $"Erreur lors de la récupération : {ex.Message}" });
         }
     }

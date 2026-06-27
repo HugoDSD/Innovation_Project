@@ -9,7 +9,7 @@ namespace Back_end_Innovation_Project.APP.Controllers;
 
 [ApiController]
 [Route("api/Evaluation")]
-[Authorize] //Permet de bloquer la requete du front s'il n'a pas de token valide
+[Authorize] // Blocks the frontend request if it has no valid token
 public class EvalController : ControllerBase
 {
     private readonly IEvaluationService _evaluationService;
@@ -25,14 +25,14 @@ public class EvalController : ControllerBase
     [HttpPost("calculate")]
     public async Task<IActionResult> CalculateImpact(EvaluationRequestDto request)
     {
-        //  On récupère l'ID utilisateur extrait du header du token
+        // Retrieve the user ID extracted from the token header
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        // Sécurité supplémentaire au cas où le claim serait introuvable
+        // Extra safety in case the claim is missing
         if (string.IsNullOrEmpty(userIdFromToken))
         {
             return Unauthorized(new[] { "Impossible d'identifier l'utilisateur à partir du token." });
-        } 
+        }
 
 
        var result = await _evaluationService.EvaluateProjectAsync(request, userIdFromToken);
@@ -47,7 +47,7 @@ public class EvalController : ControllerBase
     
 
     
-    // l'id de l'évaluation est passé dans l'URL pour des raisons de sécurité et d'optimisation (RESTful design)
+    // The evaluation id is passed in the URL for security and optimization reasons (RESTful design)
     [HttpPut("{RequestId}/score")]
     public async Task<IActionResult> EvaluateAiscore(int RequestId, [FromBody] EvaluationAiScoreDto request)
     {
@@ -57,13 +57,13 @@ public class EvalController : ControllerBase
             return BadRequest(new[] { "L'ID de la requête est invalide." });
         }
 
-        // 2. On récupère l'ID utilisateur extrait du Token comme pour l'evaluation
+        // 2. Retrieve the user ID extracted from the token, as in the evaluation
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userIdFromToken))
         {
             return Unauthorized(new[] { "Impossible d'identifier l'utilisateur à partir du token." });
-        } 
+        }
         var result = await _evaluationService.EvaluateAiScoreAsync(RequestId, request, userIdFromToken);
 
         if (!result.IsApproved && (result.Message.StartsWith("ERREUR") || result.Message.Contains("introuvable")))
@@ -82,14 +82,14 @@ public class EvalController : ControllerBase
     [HttpGet("history")]
     public async  Task<IActionResult> GetUserHistory( double? minCarbon = null,  double? maxCarbon = null,string? aiScore = null, DateTime? startDate = null, DateTime? endDate = null)
     {
-        //  On récupère l'ID utilisateur extrait du Token comme pour l'evaluation
+        // Retrieve the user ID extracted from the token, as in the evaluation
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdFromToken))
         {
             return Unauthorized(new[] { "Impossible d'identifier l'utilisateur à partir du token." });
-        } 
+        }
 
-        
+
         var (success, history, errors) = await _evaluationService.GetUserHistoryAsync(userIdFromToken, minCarbon, maxCarbon, aiScore, startDate, endDate);
 
         if (!success)
@@ -102,13 +102,13 @@ public class EvalController : ControllerBase
 }
 
 /*
-ControllerBase permet : 
-    - La gestion des réponses HTTP : C'est elle qui te fournit les méthodes comme 
-        Ok() (statut 200), 
-        BadRequest() (statut 400), 
-        Unauthorized() (statut 401) 
-        ou NotFound() (statut 404).
+ControllerBase provides:
+    - HTTP response handling: it gives you methods like
+        Ok() (status 200),
+        BadRequest() (status 400),
+        Unauthorized() (status 401)
+        or NotFound() (status 404).
 
-    - L'accès au contexte de la requête : C'est grâce à ControllerBase que tu peux taper User pour aller lire le Token JWT,
-        ou accéder à Request et Response pour manipuler les en-têtes HTTP.
+    - Access to the request context: through ControllerBase you can use User to read the JWT token,
+        or access Request and Response to manipulate the HTTP headers.
 */

@@ -9,11 +9,11 @@ namespace Back_end_Innovation_Project.APP.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    //_authService est une instance de la classe AuthService (la classe concrète qui implémente notre interface IAuthService) que nous allons utiliser pour gérer la logique métier de l'authentification. 
-    // C'est grâce à l'injection de dépendances que nous pouvons obtenir une instance de AuthService sans avoir à la créer manuellement dans notre contrôleur.
+    // _authService is an instance of AuthService (the concrete class implementing IAuthService) used to handle the authentication business logic.
+    // Dependency injection lets us obtain an AuthService instance without creating it manually in the controller.
     private readonly IAuthService _authService;
 
-    // On injecte NOTRE service de la couche LOGIC
+    // Inject OUR service from the LOGIC layer
     public AuthController(IAuthService authService)
     {
         _authService = authService;
@@ -53,13 +53,13 @@ public class AuthController : ControllerBase
 
 
 /*
-ControllerBase permet : 
-    - La gestion des réponses HTTP : C'est elle qui te fournit les méthodes comme 
-        Ok() (statut 200), 
-        BadRequest() (statut 400), 
-        Unauthorized() (statut 401) 
-        ou NotFound() (statut 404).
+ControllerBase provides:
+    - HTTP response handling: it gives you methods like
+        Ok() (status 200),
+        BadRequest() (status 400),
+        Unauthorized() (status 401)
+        or NotFound() (status 404).
 
-    - L'accès au contexte de la requête : C'est grâce à ControllerBase que tu peux taper User pour aller lire le Token JWT,
-        ou accéder à Request et Response pour manipuler les en-têtes HTTP.
+    - Access to the request context: through ControllerBase you can use User to read the JWT token,
+        or access Request and Response to manipulate the HTTP headers.
 */

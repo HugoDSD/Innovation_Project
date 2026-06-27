@@ -29,13 +29,13 @@ public class ImpactCalculator
         { "DeepSeek R1", (5.5e-07, 2.19e-06) }                                      
     };
 
-    // --- LE MOTEUR DE CALCUL ---
+    // --- THE CALCULATION ENGINE ---
     public EvaluationResultDto EvaluateProject(EvaluationRequestDto request)
     {
         var result = new EvaluationResultDto();
 
 
-        // vérification de la validité des entrées
+        // Validate the inputs
         if (request.DataSensitivity == 5 && request.LegalRisk == 5)
         {
             result.IsApproved = false;
@@ -43,7 +43,7 @@ public class ImpactCalculator
             return result;
         }
 
-        // calcule l'impact energétique, carbone et eau
+        // Compute the energy, carbon and water impact
         if (!_energyPerToken.ContainsKey(request.ModelName) || !_wueProvider.ContainsKey(request.Provider))
         {
             result.IsApproved = false;
@@ -58,20 +58,20 @@ public class ImpactCalculator
         result.TotalCarbonKg = result.TotalEnergyKwh * MixElectriqueFrance;
         result.TotalWaterLiters = result.TotalEnergyKwh * _wueProvider[request.Provider];
 
-        // Calcul de l'impact économique
+        // Compute the economic impact
         if (_costPerToken.TryGetValue(request.ModelName, out var costs))
         {
             result.TotalCostUsd = (request.InputTokens * costs.Input) + (request.OutputTokens * costs.Output);
         }
 
-        // calcul de l'impact Social
+        // Compute the social impact
         result.TotalHoursSaved = request.HoursSavedReports + request.HoursSavedImages + request.HoursSavedPresentations;
-        
-       
+
+
         result.RiskScore = (request.DataSensitivity + request.LegalRisk) / 2.0;
 
-        // Logique d'approbation
-        
+        // Approval logic
+
         if (result.TotalHoursSaved > 1.0 && result.RiskScore < 4.0)
         {
             result.IsApproved = true;
