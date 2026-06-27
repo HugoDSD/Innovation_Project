@@ -1,22 +1,29 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { login } from '../services/auth.js'
 
 const router = useRouter()
-const username = ref('')
+const email = ref('')
 const password = ref('')
 const error = ref('')
+const loading = ref(false)
 
-const handleLogin = () => {
-  if (username.value.trim() && password.value.trim()) {
-    // Simulate authentication
-    localStorage.setItem('user', JSON.stringify({
-      username: username.value,
-      timestamp: new Date().toISOString()
-    }))
-    router.push('/app')
-  } else {
+const handleLogin = async () => {
+  if (!email.value.trim() || !password.value.trim()) {
     error.value = 'Veuillez remplir tous les champs'
+    return
+  }
+  loading.value = true
+  error.value = ''
+  try {
+    const data = await login(email.value, password.value)
+    localStorage.setItem('token', data.token)
+    router.push('/app')
+  } catch {
+    error.value = 'Email ou mot de passe incorrect'
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -29,22 +36,22 @@ const handleLogin = () => {
       
       <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <label for="username">Nom d'utilisateur</label>
-          <input 
-            id="username"
-            v-model="username" 
-            type="text" 
-            placeholder="Entrez votre nom d'utilisateur"
+          <label for="email">Adresse email</label>
+          <input
+            id="email"
+            v-model="email"
+            type="email"
+            placeholder="Entrez votre adresse email"
             @keyup.enter="handleLogin"
           >
         </div>
 
         <div class="form-group">
           <label for="password">Mot de passe</label>
-          <input 
+          <input
             id="password"
-            v-model="password" 
-            type="password" 
+            v-model="password"
+            type="password"
             placeholder="Entrez votre mot de passe"
             @keyup.enter="handleLogin"
           >
@@ -52,10 +59,10 @@ const handleLogin = () => {
 
         <p v-if="error" class="error-message">{{ error }}</p>
 
-        <button type="submit" class="login-btn">Connexion</button>
+        <button type="submit" class="login-btn" :disabled="loading">
+          {{ loading ? 'Connexion...' : 'Connexion' }}
+        </button>
       </form>
-
-      <p class="demo-hint">Pour démo: Utilisez n'importe quel identifiant et mot de passe</p>
     </div>
   </div>
 </template>
