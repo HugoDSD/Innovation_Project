@@ -9,7 +9,7 @@ const error = ref('')
 
 const handleLogin = () => {
   if (username.value.trim() && password.value.trim()) {
-    // Simuler une authentification
+    // Simulate authentication
     localStorage.setItem('user', JSON.stringify({
       username: username.value,
       timestamp: new Date().toISOString()

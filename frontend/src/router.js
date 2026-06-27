@@ -25,7 +25,7 @@ const router = createRouter({
   routes
 })
 
-// Middleware pour vérifier l'authentification
+// Auth guard
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('user')
   

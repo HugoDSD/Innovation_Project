@@ -19,13 +19,13 @@ const formData = ref({
 const results = ref(null)
 const showResults = ref(false)
 
-// Données aléatoires pour simuler une réponse
+// Random data to simulate a backend response
 const generateRandomResults = () => {
   const levels = ['none', 'not_recommended', 'recommended', 'highly_recommended']
   const randomLevel = levels[Math.floor(Math.random() * levels.length)]
   const levelIndex = levels.indexOf(randomLevel)
 
-  // Données pour empreinte carbone
+  // Carbon footprint data per AI level
   const carbonFootprints = [150, 280, 450, 650]
   const emissions = [
     [
@@ -50,7 +50,7 @@ const generateRandomResults = () => {
     ]
   ]
 
-  // Recommendations techniques
+  // Technical recommendations per AI level
   const technicalRecommendations = [
     [
       'Utiliser des méthodes traditionnelles de développement',
@@ -74,7 +74,7 @@ const generateRandomResults = () => {
     ]
   ]
 
-  // Alternatives sans IA
+  // Non-AI alternatives per level
   const alternatives = [
     [
       'Scripts bash et outils shell classiques',
@@ -98,7 +98,7 @@ const generateRandomResults = () => {
     ]
   ]
 
-  // Actions pour réduire l'impact
+  // Impact reduction actions per level
   const actions = [
     [
       'Maintenir une bonne documentation',
@@ -145,7 +145,7 @@ const handleSubmit = () => {
     results.value = generateRandomResults()
     showResults.value = true
     
-    // Faire défiler vers les résultats après un court délai
+    // Scroll to results after a short delay
     setTimeout(() => {
       document.querySelector('.results-section')?.scrollIntoView({ behavior: 'smooth' })
     }, 100)
