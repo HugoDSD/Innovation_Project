@@ -32,7 +32,7 @@ builder.Services.AddScoped<IEvaluationService, EvaluationServices>();
 
 // --- JWT AUTHENTICATION CONFIGURATION ---
 var jwtSecret = builder.Configuration["JwtSettings:Secret"]
-    ?? throw new InvalidOperationException("Clé secrète JWT manquante.");
+    ?? throw new InvalidOperationException("Missing JWT secret key.");
 
 builder.Services.AddAuthentication(options =>
 {

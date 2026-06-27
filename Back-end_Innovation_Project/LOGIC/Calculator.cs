@@ -4,7 +4,7 @@ namespace Back_end_Innovation_Project.LOGIC.Calculators;
 
 public class ImpactCalculator
 {
-    private const double MixElectriqueFrance = 0.0801;
+    private const double FranceElectricityMixKgPerKwh = 0.0801;
 
     private readonly Dictionary<string, double> _energyPerToken = new()
     {
@@ -55,7 +55,7 @@ public class ImpactCalculator
         double totalTokens = request.InputTokens + request.OutputTokens;
         
         result.TotalEnergyKwh = totalTokens * energyPerToken;
-        result.TotalCarbonKg = result.TotalEnergyKwh * MixElectriqueFrance;
+        result.TotalCarbonKg = result.TotalEnergyKwh * FranceElectricityMixKgPerKwh;
         result.TotalWaterLiters = result.TotalEnergyKwh * _wueProvider[request.Provider];
 
         // Compute the economic impact

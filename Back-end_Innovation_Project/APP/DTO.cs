@@ -40,7 +40,7 @@ public class EvaluationHistoryDTO
     public string ModelName { get; set; } = string.Empty;
     public string AiScore { get; set; } = string.Empty; 
 
-    // --- Les métriques environnementales ---
+    // --- Environmental metrics ---
     public double CarbonFootprint { get; set; }
     public double WaterFootprintLiters { get; set; }
     public double EnergyKwh { get; set; }
@@ -83,22 +83,22 @@ public class EvaluationResultDto
     public int EvaluationId { get; set; }
     public string Message { get; set; } = string.Empty;
     
-    // Impact Environnemental
+    // Environmental impact
     public double TotalEnergyKwh { get; set; }
     public double TotalCarbonKg { get; set; }
     public double TotalWaterLiters { get; set; }
-    
-    // Impact Économique
+
+    // Economic impact
     public double TotalCostUsd { get; set; }
-    
-    // Impact Social
+
+    // Social impact
     public double TotalHoursSaved { get; set; }
     public double RiskScore { get; set; }
 }
 
 public class EvaluationAiScoreDto
 {
- // on ne met que la note de l'IA, pas l'id de l'évaluation, car l'id est passé dans l'URL (question de sécurité et d'optimisation (RESTful design)
+ // Only the AI score is included, not the evaluation id, since the id is passed in the URL (for security and optimization — RESTful design)
     public string AiScore { get; set; } = string.Empty;
 
 }

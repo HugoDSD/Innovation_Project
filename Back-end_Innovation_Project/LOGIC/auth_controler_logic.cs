@@ -75,7 +75,7 @@ public class AuthService : IAuthService
         var secretKey = _configuration["JwtSettings:Secret"];
         if (string.IsNullOrEmpty(secretKey))
         {
-            throw new Exception("La clé secrète pour JWT n'est pas configurée. Demander à hugo le fichier appsettings.json");
+            throw new Exception("The JWT secret key is not configured. Ask Hugo for the appsettings.json file.");
         }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));

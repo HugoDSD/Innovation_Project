@@ -16,7 +16,7 @@ public class AppDb : IdentityDbContext<AppUser>
     {
         base.OnModelCreating(modelBuilder);
 
-        // Si on supprime un utilisateur, on supprime aussi son historique (Cascade)
+        // When a user is deleted, their history is deleted too (Cascade)
         modelBuilder.Entity<EvaluationHistory>()
             .HasOne(h => h.User)
             .WithMany(u => u.Histories)
@@ -28,22 +28,22 @@ public class AppDb : IdentityDbContext<AppUser>
 
 
 /*
-                        -- Choix de technologie --
-On choisit d'utiliser IdentityDbContext<AppUser> pour bénéficier de toutes les fonctionnalités d'ASP.NET Core Identity (gestion des utilisateurs, rôles, etc.) 
-tout en ajoutant notre propre table EvaluationHistory pour stocker l'historique des évaluations environnementales de chaque utilisateur.
-DbContext est la classe standard d'Entity Framework Core. C'est une page blanche : elle ne contient aucune table par défaut. 
+                        -- Technology choice --
+We use IdentityDbContext<AppUser> to benefit from all the ASP.NET Core Identity features (user management, roles, etc.)
+while adding our own EvaluationHistory table to store each user's environmental evaluation history.
+DbContext is the standard Entity Framework Core class. It is a blank slate: it contains no table by default.
 
-En héritant de IdentityDbContext<AppUser>, on ajoute automatiquement toutes les tables nécessaires pour gérer les utilisateurs (AspNetUsers, AspNetRoles, etc.)
-donc  mots de passe, les jetons de connexion, les rôles (administrateur, utilisateur), etc.
+By inheriting from IdentityDbContext<AppUser>, we automatically add all the tables needed to manage users (AspNetUsers, AspNetRoles, etc.)
+so passwords, login tokens, roles (administrator, user), etc.
 
-                        -- Rôle de ce fichier --
+                        -- Role of this file --
 
-C'est la passerelle unique entre ton monde en C# (orienté objet) et ton monde SQL (PostgreSQL, orienté relationnel).
-    - La cartographie (Mapping) : C'est lui qui dit à Entity Framework quelles classes C# doivent devenir des tables SQL. 
-Grâce à la ligne public DbSet<EvaluationHistory> EvaluationHistories { get; set; }
-    - Le traducteur SQL
-    - Le suivi des modifications (Change Tracker) : Dès que tu récupères, modifies, ajoutes ou supprimes un objet en C#, le AppDbContext garde cela en mémoire. 
-Rien n'est envoyé à la base de données tant que tu n'appelles pas explicitement la méthode SaveChanges()
-    - La définition des règles métier (OnModelCreating) : C'est à cet endroit que tu définis les relations complexes. 
-Dans ton code, tu as configuré un comportement de suppression en cascade (DeleteBehavior.Cascade)
+It is the single gateway between the C# world (object-oriented) and the SQL world (PostgreSQL, relational).
+    - Mapping: it tells Entity Framework which C# classes should become SQL tables,
+thanks to the line public DbSet<EvaluationHistory> EvaluationHistories { get; set; }
+    - The SQL translator
+    - Change tracking: as soon as you fetch, modify, add or delete a C# object, the AppDbContext keeps it in memory.
+Nothing is sent to the database until you explicitly call SaveChanges()
+    - Business rule definition (OnModelCreating): this is where you define complex relationships.
+Here, a cascade delete behavior has been configured (DeleteBehavior.Cascade)
 */
