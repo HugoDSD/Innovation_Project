@@ -2,7 +2,7 @@
 import AILevelIndicator from './AILevelIndicator.vue'
 import EnvironmentalImpactCard from './EnvironmentalImpactCard.vue'
 import BusinessImpactCard from './BusinessImpactCard.vue'
-import AiScoreRating from './AiScoreRating.vue'
+import AIScoreRating from './AIScoreRating.vue'
 
 defineProps({
   results: { type: Object, default: null }
@@ -31,7 +31,7 @@ defineProps({
       />
     </div>
 
-    <AiScoreRating :evaluation-id="results.evaluationId" />
+    <AIScoreRating :evaluation-id="results.evaluationId" />
   </div>
 </template>
 
