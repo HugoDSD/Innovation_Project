@@ -4,180 +4,90 @@ import { useRouter } from 'vue-router'
 import ResultsSection from '../components/ResultsSection.vue'
 
 const router = useRouter()
+const currentStep = ref(1)
+const loading = ref(false)
+const error = ref('')
+const results = ref(null)
 
-const formData = ref({
+const step1 = ref({
   projectName: '',
   projectDescription: '',
-  duration: '',
-  teamSize: '',
-  budget: '',
-  complexity: '',
-  deadline: '',
-  technology: ''
+  hoursSavedReports: 0,
+  hoursSavedImages: 0,
+  hoursSavedPresentations: 0,
+  dataSensitivity: 1,
+  legalRisk: 1
 })
 
-const results = ref(null)
-const showResults = ref(false)
+const step2 = ref({
+  modelName: '',
+  provider: '',
+  inputTokens: 0,
+  outputTokens: 0
+})
 
-// Random data to simulate a backend response
-const generateRandomResults = () => {
-  const levels = ['none', 'not_recommended', 'recommended', 'highly_recommended']
-  const randomLevel = levels[Math.floor(Math.random() * levels.length)]
-  const levelIndex = levels.indexOf(randomLevel)
+const AI_MODELS = ['GPT OSS 20B', 'GPT OSS 120B', 'DeepSeek V3.1', 'DeepSeek R1']
+const PROVIDERS = ['Microsoft', 'Amazon', 'Référence']
 
-  // Carbon footprint data per AI level
-  const carbonFootprints = [150, 280, 450, 650]
-  const emissions = [
-    [
-      { stage: 'Infrastructure', amount: 50, description: 'Hébergement et serveurs' },
-      { stage: 'Développement', amount: 60, description: 'Ressources de développement' },
-      { stage: 'Maintenance', amount: 40, description: 'Maintenance et support' }
-    ],
-    [
-      { stage: 'Infrastructure', amount: 90, description: 'Hébergement et serveurs cloud' },
-      { stage: 'Développement', amount: 120, description: 'Ressources de développement et tests' },
-      { stage: 'Maintenance', amount: 70, description: 'Maintenance et support continu' }
-    ],
-    [
-      { stage: 'Infrastructure', amount: 150, description: 'Infrastructure optimisée' },
-      { stage: 'Développement', amount: 200, description: 'Développement avec IA' },
-      { stage: 'Maintenance', amount: 100, description: 'Maintenance automatisée' }
-    ],
-    [
-      { stage: 'Infrastructure', amount: 200, description: 'Infrastructure très optimisée' },
-      { stage: 'Développement', amount: 300, description: 'Développement accéléré par IA' },
-      { stage: 'Maintenance', amount: 150, description: 'Maintenance préventive automatisée' }
-    ]
-  ]
+const validateStep1 = () =>
+  step1.value.projectName.trim() !== '' &&
+  step1.value.dataSensitivity >= 1 &&
+  step1.value.legalRisk >= 1
 
-  // Technical recommendations per AI level
-  const technicalRecommendations = [
-    [
-      'Utiliser des méthodes traditionnelles de développement',
-      'Optimiser l\'infrastructure existante',
-      'Mettre en place un monitoring performant'
-    ],
-    [
-      'Considérer une automatisation partielle',
-      'Optimiser les pipelines de déploiement',
-      'Mettre en place des tests automatisés'
-    ],
-    [
-      'Intégrer des outils d\'IA pour l\'automatisation',
-      'Utiliser le machine learning pour l\'optimisation',
-      'Implémenter des processus intelligents'
-    ],
-    [
-      'Déployer une IA générative pour la génération de code',
-      'Utiliser l\'IA pour l\'optimisation complète',
-      'Automatiser tous les processus répétitifs'
-    ]
-  ]
+const validateStep2 = () =>
+  step2.value.modelName !== '' &&
+  step2.value.provider !== '' &&
+  step2.value.inputTokens > 0 &&
+  step2.value.outputTokens > 0
 
-  // Non-AI alternatives per level
-  const alternatives = [
-    [
-      'Scripts bash et outils shell classiques',
-      'Équipe dédiée pour les tâches manuelles',
-      'Approche itérative sans automatisation'
-    ],
-    [
-      'Outils d\'automatisation traditionnels (Jenkins, GitLab CI)',
-      'Processus manuels documentés',
-      'Tests effectués par l\'équipe QA'
-    ],
-    [
-      'Templating et frameworks existants',
-      'Configuration manuelle des environnements',
-      'Analyse manuelle des performances'
-    ],
-    [
-      'Développement entièrement manuel avec équipe expérimentée',
-      'Patterns et bonnes pratiques documentées',
-      'Revues de code systématiques'
-    ]
-  ]
+const goToStep2 = () => {
+  if (validateStep1()) currentStep.value = 2
+}
 
-  // Impact reduction actions per level
-  const actions = [
-    [
-      'Maintenir une bonne documentation',
-      'Former l\'équipe régulièrement',
-      'Planifier avec soin'
-    ],
-    [
-      'Automatiser les tâches répétitives',
-      'Utiliser le CI/CD efficacement',
-      'Réduire les inefficacités manuelles'
-    ],
-    [
-      'Mettre en place l\'IA pour l\'optimisation',
-      'Analyser les performances en continu',
-      'Automatiser les processus critiques'
-    ],
-    [
-      'Maximiser l\'utilisation de l\'IA générative',
-      'Implémenter le self-healing automatique',
-      'Optimiser les ressources en temps réel'
-    ]
-  ]
-
-  const detailedAnalysisTexts = [
-    'Votre projet n\'a pas besoin d\'IA pour être réussi. Les méthodes traditionnelles suffisent.',
-    'L\'IA pourrait aider mais n\'est pas essentielle pour ce projet.',
-    'L\'IA est recommandée pour optimiser ce projet et améliorer les résultats.',
-    'L\'IA est fortement recommandée pour maximiser l\'efficacité et l\'impact de votre projet.'
-  ]
+// Temporary mock — replaced in Phase 2 by a real API call
+const mockSubmit = () => {
+  const hoursSaved = step1.value.hoursSavedReports + step1.value.hoursSavedImages + step1.value.hoursSavedPresentations
+  const riskScore = (step1.value.dataSensitivity + step1.value.legalRisk) / 2
+  const approved = hoursSaved > 1.0 && riskScore < 4.0
 
   return {
-    aiLevel: randomLevel,
-    carbonFootprint: carbonFootprints[levelIndex],
-    emissions: emissions[levelIndex],
-    technicalRecommendations: technicalRecommendations[levelIndex],
-    alternativesWithoutAI: alternatives[levelIndex],
-    actionItems: actions[levelIndex],
-    detailedAnalysis: detailedAnalysisTexts[levelIndex]
+    isApproved: approved,
+    evaluationId: 1,
+    message: approved
+      ? 'APPROUVÉ : Le gain social compense l\'impact environnemental et les risques sont maîtrisés.'
+      : 'REJETÉ : Les bénéfices ne compensent pas les risques ou l\'impact.',
+    totalEnergyKwh: (step2.value.inputTokens + step2.value.outputTokens) * 3.708611e-7,
+    totalCarbonKg: (step2.value.inputTokens + step2.value.outputTokens) * 3.708611e-7 * 0.0801,
+    totalWaterLiters: (step2.value.inputTokens + step2.value.outputTokens) * 3.708611e-7 * 0.84,
+    totalCostUsd: step2.value.inputTokens * 1.4e-7 + step2.value.outputTokens * 2.8e-7,
+    totalHoursSaved: hoursSaved,
+    riskScore
   }
 }
 
-const handleSubmit = () => {
-  if (validateForm()) {
-    results.value = generateRandomResults()
-    showResults.value = true
-    
-    // Scroll to results after a short delay
-    setTimeout(() => {
-      document.querySelector('.results-section')?.scrollIntoView({ behavior: 'smooth' })
-    }, 100)
-  }
-}
-
-const validateForm = () => {
-  return formData.value.projectName.trim() &&
-         formData.value.projectDescription.trim() &&
-         formData.value.duration &&
-         formData.value.teamSize &&
-         formData.value.complexity
+const handleSubmit = async () => {
+  if (!validateStep2()) return
+  loading.value = true
+  error.value = ''
+  await new Promise(r => setTimeout(r, 600)) // Simulate network delay
+  results.value = mockSubmit()
+  loading.value = false
+  setTimeout(() => {
+    document.querySelector('.results-section')?.scrollIntoView({ behavior: 'smooth' })
+  }, 100)
 }
 
 const handleLogout = () => {
-  localStorage.removeItem('user')
+  localStorage.removeItem('token')
   router.push('/login')
 }
 
-const resetForm = () => {
-  formData.value = {
-    projectName: '',
-    projectDescription: '',
-    duration: '',
-    teamSize: '',
-    budget: '',
-    complexity: '',
-    deadline: '',
-    technology: ''
-  }
-  showResults.value = false
+const reset = () => {
+  currentStep.value = 1
   results.value = null
+  error.value = ''
+  step1.value = { projectName: '', projectDescription: '', hoursSavedReports: 0, hoursSavedImages: 0, hoursSavedPresentations: 0, dataSensitivity: 1, legalRisk: 1 }
+  step2.value = { modelName: '', provider: '', inputTokens: 0, outputTokens: 0 }
 }
 </script>
 
@@ -185,120 +95,127 @@ const resetForm = () => {
   <div class="main-container">
     <header class="header">
       <div class="header-content">
-        <h1>Je ne sais pas quoi mettre comme titre :-)</h1>
-        <button class="logout-btn" @click="handleLogout">Déconnexion</button>
+        <h1>Évaluateur d'Impact IA</h1>
+        <div class="header-actions">
+          <button class="nav-btn" @click="router.push('/history')">Historique</button>
+          <button class="logout-btn" @click="handleLogout">Déconnexion</button>
+        </div>
       </div>
     </header>
 
     <div class="content">
       <div class="form-container">
-        <h2 class="form-title">Analysez votre projet</h2>
-        <p class="form-subtitle">
-            Remplissez les informations ci-dessous pour obtenir une analyse d'IA <br>
-            Les champs dotés d'un * sont obligatoires pour lancer l'analyse
-        </p>
+        <div class="step-indicator">
+          <span :class="{ active: currentStep === 1 }">1. Contexte du projet</span>
+          <span class="divider">›</span>
+          <span :class="{ active: currentStep === 2 }">2. Configuration IA</span>
+        </div>
 
-        <form @submit.prevent="handleSubmit" class="project-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="projectName">Nom du projet *</label>
-              <input
-                id="projectName"
-                v-model="formData.projectName"
-                type="text"
-                placeholder="Ex: Plateforme e-commerce"
-                required
-              >
-            </div>
-            <div class="form-group">
-              <label for="complexity">Complexité *</label>
-              <select id="complexity" v-model="formData.complexity" required>
-                <option value="">Sélectionnez...</option>
-                <option value="low">Faible</option>
-                <option value="medium">Moyenne</option>
-                <option value="high">Élevée</option>
-                <option value="very-high">Très élevée</option>
-              </select>
-            </div>
-          </div>
+        <!-- Step 1 -->
+        <form v-if="currentStep === 1" @submit.prevent="goToStep2" class="project-form">
+          <h2 class="form-title">Décrivez votre projet</h2>
 
-          <div class="form-group full-width">
-            <label for="description">Description du projet *</label>
-            <textarea
-              id="description"
-              v-model="formData.projectDescription"
-              placeholder="Décrivez votre projet en détail..."
-              rows="4"
-              required
-            ></textarea>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="duration">Durée estimée *</label>
-              <select id="duration" v-model="formData.duration" required>
-                <option value="">Sélectionnez...</option>
-                <option value="1-3-months">1-3 mois</option>
-                <option value="3-6-months">3-6 mois</option>
-                <option value="6-12-months">6-12 mois</option>
-                <option value="12-plus-months">12+ mois</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="teamSize">Taille de l'équipe *</label>
-              <select id="teamSize" v-model="formData.teamSize" required>
-                <option value="">Sélectionnez...</option>
-                <option value="1-3">1-3 personnes</option>
-                <option value="4-10">4-10 personnes</option>
-                <option value="11-20">11-20 personnes</option>
-                <option value="20-plus">20+ personnes</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="budget">Budget</label>
-              <select id="budget" v-model="formData.budget">
-                <option value="">Sélectionnez...</option>
-                <option value="null">Nul (0€)</option>
-                <option value="low">Faible (1-10k€)</option>
-                <option value="medium">Moyen (10k-50k€)</option>
-                <option value="high">Élevé (50k-200k€)</option>
-                <option value="very-high">Très élevé (plus de 200k€)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="technology">Stack technologique</label>
-              <input
-                id="technology"
-                v-model="formData.technology"
-                type="text"
-                placeholder="Ex: Vue.js, Node.js, PostgreSQL"
-              >
-            </div>
+          <div class="form-group">
+            <label for="projectName">Nom du projet *</label>
+            <input id="projectName" v-model="step1.projectName" type="text"
+              placeholder="Ex: Automatisation des rapports RH" required>
           </div>
 
           <div class="form-group">
-            <label for="deadline">Deadline</label>
-            <input
-              id="deadline"
-              v-model="formData.deadline"
-              type="date"
-            >
+            <label for="projectDescription">Description</label>
+            <textarea id="projectDescription" v-model="step1.projectDescription" rows="3"
+              placeholder="Décrivez votre projet..."></textarea>
+          </div>
+
+          <h3 class="section-title">Gain de temps estimé (heures / semaine)</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="hoursSavedReports">Rapports</label>
+              <input id="hoursSavedReports" v-model.number="step1.hoursSavedReports"
+                type="number" min="0" step="0.5">
+            </div>
+            <div class="form-group">
+              <label for="hoursSavedImages">Images</label>
+              <input id="hoursSavedImages" v-model.number="step1.hoursSavedImages"
+                type="number" min="0" step="0.5">
+            </div>
+            <div class="form-group">
+              <label for="hoursSavedPresentations">Présentations</label>
+              <input id="hoursSavedPresentations" v-model.number="step1.hoursSavedPresentations"
+                type="number" min="0" step="0.5">
+            </div>
+          </div>
+
+          <h3 class="section-title">Profil de risque</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dataSensitivity">Sensibilité des données (1–5) *</label>
+              <input id="dataSensitivity" v-model.number="step1.dataSensitivity"
+                type="number" min="1" max="5" required>
+            </div>
+            <div class="form-group">
+              <label for="legalRisk">Risque légal (1–5) *</label>
+              <input id="legalRisk" v-model.number="step1.legalRisk"
+                type="number" min="1" max="5" required>
+            </div>
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="submit-btn">Analyser le projet</button>
-            <button type="button" class="reset-btn" @click="resetForm">Réinitialiser</button>
+            <button type="submit" class="submit-btn">Suivant →</button>
+          </div>
+        </form>
+
+        <!-- Step 2 -->
+        <form v-if="currentStep === 2" @submit.prevent="handleSubmit" class="project-form">
+          <h2 class="form-title">Configurez l'IA</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="modelName">Modèle IA *</label>
+              <select id="modelName" v-model="step2.modelName" required>
+                <option value="">Sélectionnez un modèle...</option>
+                <option v-for="model in AI_MODELS" :key="model" :value="model">{{ model }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="provider">Fournisseur *</label>
+              <select id="provider" v-model="step2.provider" required>
+                <option value="">Sélectionnez un fournisseur...</option>
+                <option v-for="p in PROVIDERS" :key="p" :value="p">{{ p }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inputTokens">Tokens en entrée *</label>
+              <input id="inputTokens" v-model.number="step2.inputTokens"
+                type="number" min="1" required>
+            </div>
+            <div class="form-group">
+              <label for="outputTokens">Tokens en sortie *</label>
+              <input id="outputTokens" v-model.number="step2.outputTokens"
+                type="number" min="1" required>
+            </div>
+          </div>
+
+          <p v-if="error" class="error-message">{{ error }}</p>
+
+          <div class="form-actions">
+            <button type="button" class="reset-btn" @click="currentStep = 1">← Retour</button>
+            <button type="submit" class="submit-btn" :disabled="loading">
+              {{ loading ? 'Analyse en cours...' : 'Analyser' }}
+            </button>
+            <button type="button" class="reset-btn" @click="reset">Réinitialiser</button>
           </div>
         </form>
       </div>
 
       <ResultsSection
-        v-if="showResults"
+        v-if="results"
         :results="results"
-        :show-results="showResults"
         class="results-section"
       />
     </div>
@@ -336,6 +253,22 @@ const resetForm = () => {
   font-size: 1.8rem;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.nav-btn {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
 .logout-btn {
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -364,6 +297,24 @@ const resetForm = () => {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  color: #999;
+}
+
+.step-indicator span.active {
+  color: darkblue;
+  font-weight: 600;
+}
+
+.step-indicator .divider {
+  color: #ccc;
+}
+
 .form-title {
   color: #333;
   font-size: 1.6rem;
@@ -376,6 +327,13 @@ const resetForm = () => {
   text-align: center;
   color: #666;
   margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1rem;
+  color: #333;
+  margin: 0.5rem 0;
+  font-weight: 600;
 }
 
 .project-form {
@@ -429,6 +387,12 @@ textarea {
   resize: vertical;
 }
 
+.error-message {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
 .form-actions {
   display: flex;
   gap: 1rem;
@@ -450,6 +414,11 @@ textarea {
 
 .submit-btn:hover {
   box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .reset-btn {
