@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from './pages/LoginPage.vue'
 import MainPage from './pages/MainPage.vue'
+import HistoryPage from './pages/HistoryPage.vue'
 
 const routes = [
   {
@@ -12,6 +13,12 @@ const routes = [
     path: '/app',
     name: 'Main',
     component: MainPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/history',
+    name: 'History',
+    component: HistoryPage,
     meta: { requiresAuth: true }
   },
   {
