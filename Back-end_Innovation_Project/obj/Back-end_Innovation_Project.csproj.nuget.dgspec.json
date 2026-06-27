@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj": {}
+    "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Innovation_Project\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj": {}
   },
   "projects": {
-    "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj": {
+    "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Innovation_Project\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj",
+        "projectUniqueName": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Innovation_Project\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj",
         "projectName": "Back-end_Innovation_Project",
-        "projectPath": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj",
+        "projectPath": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Innovation_Project\\Back-end_Innovation_Project\\Back-end_Innovation_Project.csproj",
         "packagesPath": "C:\\Users\\aigle\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Back-end_Innovation_Project\\obj\\",
+        "outputPath": "C:\\Users\\aigle\\Documents\\GitHub\\M1\\Innovation_Project\\Back-end_Innovation_Project\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\aigle\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -46,9 +46,33 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[10.0.9, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[10.0.8, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[10.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.8, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.8, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[10.0.2, )"
             }
           },
           "imports": [

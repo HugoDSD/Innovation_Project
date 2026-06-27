@@ -1,0 +1,40 @@
+# ==========================================
+# Fichiers de compilation (Ne jamais versionner)
+# ==========================================
+bin/
+obj/
+TestResults/
+
+# ==========================================
+# Paramètres des éditeurs de code (IDE)
+# ==========================================
+.vscode/
+.vs/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+
+# ==========================================
+# Fichiers OS (Mac / Windows)
+# ==========================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+
+# ==========================================
+# Fichiers de log et bases de données locales
+# ==========================================
+*.log
+*.sqlite
+*.db
+
+# ==========================================
+# Sécurité & Environnement Local
+# ==========================================
+
+Properties/launchSettings.json
+appsettings.Development.json
+appsettings.json
