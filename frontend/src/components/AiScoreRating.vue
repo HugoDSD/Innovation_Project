@@ -1,17 +1,29 @@
 <script setup>
 import { ref } from 'vue'
+import { setAiScore } from '../services/evaluation.js'
 
-defineProps({
+const props = defineProps({
   evaluationId: { type: Number, required: true }
 })
 
 const SCORES = ['Utile', 'Moyen', 'Non utile', 'Mieux sans IA']
 const selected = ref(null)
 const submitted = ref(false)
+const loading = ref(false)
+const error = ref('')
 
-// Replaced in Phase 2 by a real API call
-const submitScore = () => {
-  if (selected.value) submitted.value = true
+const submitScore = async () => {
+  if (!selected.value) return
+  loading.value = true
+  error.value = ''
+  try {
+    await setAiScore(props.evaluationId, selected.value)
+    submitted.value = true
+  } catch {
+    error.value = 'Erreur lors de l\'enregistrement.'
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -33,11 +45,12 @@ const submitScore = () => {
       <button
         class="submit-rating-btn"
         type="button"
-        :disabled="!selected"
+        :disabled="!selected || loading"
         @click="submitScore"
       >
-        Confirmer
+        {{ loading ? 'Enregistrement...' : 'Confirmer' }}
       </button>
+      <p v-if="error" class="error-message">{{ error }}</p>
     </div>
 
     <p v-else class="confirmation">✓ Évaluation enregistrée : <strong>{{ selected }}</strong></p>
@@ -83,4 +96,6 @@ const submitScore = () => {
 .submit-rating-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .confirmation { color: #155724; margin: 0; }
+
+.error-message { color: #e74c3c; font-size: 0.9rem; width: 100%; margin: 0; }
 </style>
