@@ -4,38 +4,30 @@ import EnvironmentalImpactCard from './EnvironmentalImpactCard.vue'
 import BusinessImpactCard from './BusinessImpactCard.vue'
 
 defineProps({
-  results: {
-    type: Object,
-    default: null
-  },
-  showResults: {
-    type: Boolean,
-    default: false
-  }
+  results: { type: Object, default: null }
 })
 </script>
 
 <template>
-  <div v-if="showResults" class="results-section">
+  <div v-if="results" class="results-section">
     <h2 class="results-title">Résultats de l'analyse</h2>
 
-    <AILevelIndicator :level="results?.aiLevel" />
+    <AILevelIndicator
+      :is-approved="results.isApproved"
+      :message="results.message"
+    />
 
     <div class="impact-grid">
       <EnvironmentalImpactCard
-        :carbon-footprint="results?.carbonFootprint"
-        :emissions="results?.emissions"
+        :carbon-kg="results.totalCarbonKg"
+        :water-liters="results.totalWaterLiters"
+        :energy-kwh="results.totalEnergyKwh"
       />
       <BusinessImpactCard
-        :recommendations="results?.technicalRecommendations"
-        :alternatives="results?.alternativesWithoutAI"
-        :action-items="results?.actionItems"
+        :cost-usd="results.totalCostUsd"
+        :hours-saved="results.totalHoursSaved"
+        :risk-score="results.riskScore"
       />
-    </div>
-
-    <div class="detailed-analysis">
-      <h3>Analyse détaillée</h3>
-      <p>{{ results?.detailedAnalysis }}</p>
     </div>
   </div>
 </template>

@@ -1,39 +1,29 @@
 <script setup>
 defineProps({
-  carbonFootprint: {
-    type: Number,
-    required: true
-  },
-  emissions: {
-    type: Array,
-    default: () => []
-  }
+  carbonKg:    { type: Number, required: true },
+  waterLiters: { type: Number, required: true },
+  energyKwh:   { type: Number, required: true }
 })
 </script>
 
 <template>
   <div class="environmental-card">
     <h4 class="card-title">Impact Environnemental</h4>
-    
-    <div class="carbon-section">
-      <div class="carbon-display">
-        <span class="carbon-value">{{ carbonFootprint }}</span>
-        <span class="carbon-unit">kg CO₂</span>
-      </div>
-      <p class="carbon-label">Empreinte carbone estimée</p>
-    </div>
 
-    <div class="emissions-detail">
-      <h5>Détail par étapes du projet</h5>
-      <div class="emissions-list">
-        <div v-for="(emission, index) in emissions" :key="index" class="emission-item">
-          <div class="emission-header">
-            <span class="emission-stage">{{ emission.stage }}</span>
-            <span class="emission-amount">{{ emission.amount }} kg CO₂</span>
-          </div>
-          <p class="emission-description">{{ emission.description }}</p>
-        </div>
-      </div>
+    <div class="metric">
+      <span class="metric-value">{{ carbonKg.toFixed(6) }}</span>
+      <span class="metric-unit">kg CO₂</span>
+      <p class="metric-label">Empreinte carbone</p>
+    </div>
+    <div class="metric">
+      <span class="metric-value">{{ waterLiters.toFixed(4) }}</span>
+      <span class="metric-unit">L</span>
+      <p class="metric-label">Consommation d'eau</p>
+    </div>
+    <div class="metric">
+      <span class="metric-value">{{ energyKwh.toFixed(6) }}</span>
+      <span class="metric-unit">kWh</span>
+      <p class="metric-label">Énergie consommée</p>
     </div>
   </div>
 </template>
@@ -44,100 +34,11 @@ defineProps({
   border-radius: 8px;
   padding: 1.5rem;
   border-top: 4px solid #27ae60;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-
-.card-title {
-  margin: 0 0 1.5rem 0;
-  color: #333;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.carbon-section {
-  background-color: rgba(39, 174, 96, 0.1);
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.carbon-display {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.carbon-value {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #27ae60;
-}
-
-.carbon-unit {
-  font-size: 1.1rem;
-  color: #27ae60;
-  font-weight: 600;
-}
-
-.carbon-label {
-  margin: 0;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.emissions-detail {
-  margin-top: 1.5rem;
-}
-
-.emissions-detail h5 {
-  margin: 0 0 1rem 0;
-  color: #333;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.emissions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.emission-item {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 6px;
-  border-left: 3px solid #27ae60;
-}
-
-.emission-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.emission-stage {
-  font-weight: 600;
-  color: #333;
-  font-size: 0.95rem;
-}
-
-.emission-amount {
-  color: #27ae60;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.emission-description {
-  margin: 0;
-  color: #666;
-  font-size: 0.85rem;
-  line-height: 1.4;
-}
+.card-title { margin: 0 0 1.25rem; color: #333; font-size: 1.1rem; font-weight: 600; }
+.metric { background: #f8f9fa; border-left: 3px solid #27ae60; padding: 0.75rem 1rem; border-radius: 4px; margin-bottom: 0.75rem; }
+.metric-value { font-size: 1.4rem; font-weight: bold; color: #27ae60; }
+.metric-unit { font-size: 0.9rem; color: #27ae60; margin-left: 0.25rem; }
+.metric-label { margin: 0.25rem 0 0; color: #666; font-size: 0.85rem; }
 </style>
