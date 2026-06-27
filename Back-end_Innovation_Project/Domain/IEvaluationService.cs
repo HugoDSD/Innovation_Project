@@ -1,5 +1,5 @@
-namespace Back_end_Innovation_Project.LOGIC.Interfaces;
-using Back_end_Innovation_Project.APP.DTOs;
+namespace Back_end_Innovation_Project.Logic.Interfaces;
+using Back_end_Innovation_Project.App.DTOs;
 
 public interface IEvaluationService
 {

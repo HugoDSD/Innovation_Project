@@ -1,4 +1,4 @@
-namespace Back_end_Innovation_Project.COMMON;
+namespace Back_end_Innovation_Project.Common;
 
 public class ServiceException : Exception
 {

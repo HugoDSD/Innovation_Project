@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Back_end_Innovation_Project.MODEL;
-namespace Back_end_Innovation_Project.APP.DTOs;
+using Back_end_Innovation_Project.Model;
+namespace Back_end_Innovation_Project.App.DTOs;
 
 public class RegisterDto
 {

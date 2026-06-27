@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Back_end_Innovation_Project.LOGIC.Interfaces;
-using Back_end_Innovation_Project.APP.DTOs;
+using Back_end_Innovation_Project.Logic.Interfaces;
+using Back_end_Innovation_Project.App.DTOs;
 
 
-namespace Back_end_Innovation_Project.APP.Controllers;
+namespace Back_end_Innovation_Project.App.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

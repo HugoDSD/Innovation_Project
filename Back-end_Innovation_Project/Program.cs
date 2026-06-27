@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Back_end_Innovation_Project.MODEL;
-using Back_end_Innovation_Project.PERSIST;
-using Back_end_Innovation_Project.COMMON;
-using Back_end_Innovation_Project.LOGIC.Services;
-using Back_end_Innovation_Project.LOGIC.Interfaces;
+using Back_end_Innovation_Project.Model;
+using Back_end_Innovation_Project.Persist;
+using Back_end_Innovation_Project.Common;
+using Back_end_Innovation_Project.Logic.Services;
+using Back_end_Innovation_Project.Logic.Interfaces;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

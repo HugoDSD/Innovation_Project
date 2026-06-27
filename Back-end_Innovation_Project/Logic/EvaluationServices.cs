@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using Back_end_Innovation_Project.APP.DTOs;
-using Back_end_Innovation_Project.LOGIC.Interfaces;
-using Back_end_Innovation_Project.PERSIST;
-using Back_end_Innovation_Project.LOGIC.Calculators;
-using Back_end_Innovation_Project.MODEL;
+using Back_end_Innovation_Project.App.DTOs;
+using Back_end_Innovation_Project.Logic.Interfaces;
+using Back_end_Innovation_Project.Persist;
+using Back_end_Innovation_Project.Logic.Calculators;
+using Back_end_Innovation_Project.Model;
 
 
-namespace Back_end_Innovation_Project.LOGIC.Services;
+namespace Back_end_Innovation_Project.Logic.Services;
 
 public class EvaluationServices : IEvaluationService
 {
