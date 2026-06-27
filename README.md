@@ -8,13 +8,32 @@ A tool that helps businesses determine whether using AI in a project creates eno
 
 ## What it does
 
-Users describe their AI use case and receive a multi-dimensional impact evaluation:
+Generative AI consumes real resources — electricity, water, money — and carries legal and data risks. Yet most teams integrate it without ever measuring whether the value it creates actually justifies that cost.
 
-- **Environmental** — energy (kWh), carbon footprint (kg CO₂), water consumption (L)
-- **Economic** — cost per request (USD)
-- **Social** — hours saved vs. risk score
+This tool gives any business employee a structured way to evaluate an AI integration project and receive a clear, data-backed recommendation.
 
-The system returns a verdict (approved / rejected) and stores the evaluation history per user.
+## How it works
+
+The evaluation follows three steps:
+
+**1. Describe the project**
+The user provides context about what the AI will be used for: which tasks it will handle, how many hours it is expected to save (broken down by reports, images, and presentations), and the project's risk profile (data sensitivity and legal risk on a 1–5 scale).
+
+**2. Configure the AI**
+The user selects the AI model and cloud provider they plan to use, and provides the expected token volumes (input and output). The tool supports GPT OSS 20B, GPT OSS 120B, DeepSeek V3.1, and DeepSeek R1, across Microsoft, Amazon, and reference infrastructure.
+
+**3. Evaluate and analyse**
+The tool computes a full multi-dimensional impact report:
+
+- **Environmental impact** — total energy consumed (kWh), carbon footprint (kg CO₂) based on the French electricity mix (0.0801 kg CO₂/kWh), and water consumption (L) based on the provider's water usage effectiveness ratio
+- **Economic impact** — total cost in USD based on per-token pricing for the selected model
+- **Social impact** — total hours saved across task types, and a composite risk score
+
+Based on these metrics, the system delivers a verdict:
+- **Approuvé** — the time savings outweigh the environmental impact and risks are under control
+- **Rejeté** — the benefits do not compensate for the impact or risk level
+
+After reviewing the results, the user can attach a usefulness rating to the evaluation (Utile, Moyen, Non utile, or Mieux sans IA), and all evaluations are saved to a personal history for future reference.
 
 ---
 
