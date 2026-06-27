@@ -1,41 +1,27 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { getHistory } from '../services/evaluation.js'
 
 const router = useRouter()
-
-// Mock data — replaced in Phase 2 by getHistory() API call
-const history = ref([
-  {
-    id: '1',
-    modelName: 'DeepSeek V3.1',
-    aiScore: 'Utile',
-    carbonFootprint: 0.0000594,
-    waterFootprintLiters: 0.000623,
-    energyKwh: 0.000742,
-    costUsd: 0.0049,
-    hoursSaved: 6.5,
-    riskScore: 2.5,
-    isApproved: true,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    modelName: 'GPT OSS 20B',
-    aiScore: '',
-    carbonFootprint: 0.0000021,
-    waterFootprintLiters: 0.0000026,
-    energyKwh: 0.0000261,
-    costUsd: 0.0001,
-    hoursSaved: 0.5,
-    riskScore: 4.0,
-    isApproved: false,
-    createdAt: new Date(Date.now() - 86400000).toISOString()
-  }
-])
-
-const loading = ref(false)
+const history = ref([])
+const loading = ref(true)
 const error = ref('')
+
+onMounted(async () => {
+  try {
+    history.value = await getHistory()
+  } catch (err) {
+    if (err.status === 401) {
+      localStorage.removeItem('token')
+      router.push('/login')
+    } else {
+      error.value = 'Impossible de charger l\'historique.'
+    }
+  } finally {
+    loading.value = false
+  }
+})
 
 const formatDate = (iso) =>
   new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
