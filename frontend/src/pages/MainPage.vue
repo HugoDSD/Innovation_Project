@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ResultsSection from '../components/ResultsSection.vue'
+import { calculateImpact } from '../services/evaluation.js'
 
 const router = useRouter()
 const currentStep = ref(1)
@@ -44,37 +45,36 @@ const goToStep2 = () => {
   if (validateStep1()) currentStep.value = 2
 }
 
-// Temporary mock — replaced in Phase 2 by a real API call
-const mockSubmit = () => {
-  const hoursSaved = step1.value.hoursSavedReports + step1.value.hoursSavedImages + step1.value.hoursSavedPresentations
-  const riskScore = (step1.value.dataSensitivity + step1.value.legalRisk) / 2
-  const approved = hoursSaved > 1.0 && riskScore < 4.0
-
-  return {
-    isApproved: approved,
-    evaluationId: 1,
-    message: approved
-      ? 'APPROUVÉ : Le gain social compense l\'impact environnemental et les risques sont maîtrisés.'
-      : 'REJETÉ : Les bénéfices ne compensent pas les risques ou l\'impact.',
-    totalEnergyKwh: (step2.value.inputTokens + step2.value.outputTokens) * 3.708611e-7,
-    totalCarbonKg: (step2.value.inputTokens + step2.value.outputTokens) * 3.708611e-7 * 0.0801,
-    totalWaterLiters: (step2.value.inputTokens + step2.value.outputTokens) * 3.708611e-7 * 0.84,
-    totalCostUsd: step2.value.inputTokens * 1.4e-7 + step2.value.outputTokens * 2.8e-7,
-    totalHoursSaved: hoursSaved,
-    riskScore
-  }
-}
-
 const handleSubmit = async () => {
   if (!validateStep2()) return
   loading.value = true
   error.value = ''
-  await new Promise(r => setTimeout(r, 600)) // Simulate network delay
-  results.value = mockSubmit()
-  loading.value = false
-  setTimeout(() => {
-    document.querySelector('.results-section')?.scrollIntoView({ behavior: 'smooth' })
-  }, 100)
+  try {
+    const payload = {
+      modelName: step2.value.modelName,
+      provider: step2.value.provider,
+      inputTokens: step2.value.inputTokens,
+      outputTokens: step2.value.outputTokens,
+      hoursSavedReports: step1.value.hoursSavedReports,
+      hoursSavedImages: step1.value.hoursSavedImages,
+      hoursSavedPresentations: step1.value.hoursSavedPresentations,
+      dataSensitivity: step1.value.dataSensitivity,
+      legalRisk: step1.value.legalRisk
+    }
+    results.value = await calculateImpact(payload)
+    setTimeout(() => {
+      document.querySelector('.results-section')?.scrollIntoView({ behavior: 'smooth' })
+    }, 100)
+  } catch (err) {
+    if (err.status === 401) {
+      localStorage.removeItem('token')
+      router.push('/login')
+    } else {
+      error.value = err.message ?? 'Une erreur est survenue lors de l\'analyse.'
+    }
+  } finally {
+    loading.value = false
+  }
 }
 
 const handleLogout = () => {
