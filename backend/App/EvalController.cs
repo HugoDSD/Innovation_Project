@@ -1,11 +1,11 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Back_end_Innovation_Project.Logic.Interfaces;
-using Back_end_Innovation_Project.App.DTOs;
+using InnovationProject.Logic.Interfaces;
+using InnovationProject.App.DTOs;
 
 
-namespace Back_end_Innovation_Project.App.Controllers;
+namespace InnovationProject.App.Controllers;
 
 [ApiController]
 [Route("api/Evaluation")]

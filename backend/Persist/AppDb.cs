@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Back_end_Innovation_Project.Model;
+using InnovationProject.Model;
 
-namespace Back_end_Innovation_Project.Persist;
+namespace InnovationProject.Persist;
 
 public class AppDb : IdentityDbContext<AppUser>
 {

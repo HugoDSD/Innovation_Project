@@ -1,4 +1,4 @@
-namespace Back_end_Innovation_Project.Logic.Interfaces;
+namespace InnovationProject.Logic.Interfaces;
 
 public interface IAuthService
 {

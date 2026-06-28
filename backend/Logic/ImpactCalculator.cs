@@ -1,6 +1,6 @@
-using Back_end_Innovation_Project.App.DTOs;
+using InnovationProject.App.DTOs;
 
-namespace Back_end_Innovation_Project.Logic.Calculators;
+namespace InnovationProject.Logic.Calculators;
 
 public class ImpactCalculator
 {

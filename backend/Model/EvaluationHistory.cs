@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
-namespace Back_end_Innovation_Project.Model
+namespace InnovationProject.Model
 {
    public class EvaluationHistory
     {

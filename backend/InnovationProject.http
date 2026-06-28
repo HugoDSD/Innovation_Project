@@ -1,0 +1,11 @@
+@InnovationProject_HostAddress = http://localhost:5051
+
+POST {{InnovationProject_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password"
+}
+
+###
