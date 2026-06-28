@@ -55,8 +55,9 @@ After reviewing the results, the user can attach a usefulness rating to the eval
 Innovation_Project/
 ├── frontend/                        # Vue 3 app
 │   └── src/
-│       ├── pages/                   # LoginPage, MainPage
-│       ├── components/              # ResultsSection, AILevelIndicator, ImpactCards
+│       ├── pages/                   # LoginPage, MainPage, HistoryPage
+│       ├── components/              # ResultsSection, AILevelIndicator, AIScoreRating, impact cards
+│       ├── services/                # api, auth, evaluation (backend calls)
 │       └── router.js
 ├── backend/                         # ASP.NET Core API
 │   ├── App/                         # Controllers + DTOs

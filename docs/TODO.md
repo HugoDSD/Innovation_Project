@@ -552,13 +552,13 @@ git commit -m "feat: update results components to match EvaluationResultDto cont
 Inline rating widget shown after results. No API call yet — just state and UI.
 
 **Files:**
-- Create: `frontend/src/components/AiScoreRating.vue`
+- Create: `frontend/src/components/AIScoreRating.vue`
 - Modify: `frontend/src/components/ResultsSection.vue`
 
 The four score values must match exactly what the backend stores in `AiScore`:
 `'Utile'` · `'Moyen'` · `'Non utile'` · `'Mieux sans IA'`
 
-- [ ] **Create `AiScoreRating.vue`**:
+- [ ] **Create `AIScoreRating.vue`**:
 
 ```vue
 <script setup>
@@ -649,14 +649,14 @@ const submitScore = () => {
 </style>
 ```
 
-- [ ] **Add `AiScoreRating` to `ResultsSection.vue`**:
+- [ ] **Add `AIScoreRating` to `ResultsSection.vue`**:
 
 ```vue
 <script setup>
 import AILevelIndicator from './AILevelIndicator.vue'
 import EnvironmentalImpactCard from './EnvironmentalImpactCard.vue'
 import BusinessImpactCard from './BusinessImpactCard.vue'
-import AiScoreRating from './AiScoreRating.vue'
+import AIScoreRating from './AIScoreRating.vue'
 
 defineProps({
   results: { type: Object, default: null }
@@ -685,7 +685,7 @@ defineProps({
       />
     </div>
 
-    <AiScoreRating :evaluation-id="results.evaluationId" />
+    <AIScoreRating :evaluation-id="results.evaluationId" />
   </div>
 </template>
 ```
@@ -695,7 +695,7 @@ defineProps({
 - [ ] **Commit**
 
 ```bash
-git add frontend/src/components/AiScoreRating.vue frontend/src/components/ResultsSection.vue
+git add frontend/src/components/AIScoreRating.vue frontend/src/components/ResultsSection.vue
 git commit -m "feat: add AI score rating widget (UI only)"
 ```
 
@@ -1169,10 +1169,10 @@ git commit -m "feat: connect evaluation wizard to real backend API"
 
 ## Task 9 — Connect AI score rating to real API
 
-Replace the no-op submit in `AiScoreRating.vue` with a real call to `PUT /api/Evaluation/{id}/score`.
+Replace the no-op submit in `AIScoreRating.vue` with a real call to `PUT /api/Evaluation/{id}/score`.
 
 **Files:**
-- Modify: `frontend/src/components/AiScoreRating.vue`
+- Modify: `frontend/src/components/AIScoreRating.vue`
 
 - [ ] **Add import and real submit**:
 
@@ -1224,7 +1224,7 @@ const submitScore = async () => {
 - [ ] **Commit**
 
 ```bash
-git add frontend/src/components/AiScoreRating.vue
+git add frontend/src/components/AIScoreRating.vue
 git commit -m "feat: connect AI score rating to real backend API"
 ```
 
@@ -1284,11 +1284,11 @@ git commit -m "feat: connect history page to real backend API"
 
 **Files:**
 - Modify: `backend/Program.cs`
-- Modify: `backend/APP/auth_controler_app.cs`
-- Modify: `backend/APP/evaluation_controler_app.cs`
-- Modify: `backend/LOGIC/auth_controler_logic.cs`
-- Modify: `backend/LOGIC/evaluation_services_logics.cs`
-- Modify: `backend/LOGIC/Calculator.cs`
+- Modify: `backend/App/AuthController.cs`
+- Modify: `backend/App/EvalController.cs`
+- Modify: `backend/Logic/AuthService.cs`
+- Modify: `backend/Logic/EvaluationServices.cs`
+- Modify: `backend/Logic/ImpactCalculator.cs`
 
 Translate all French comments to English. UI-facing strings returned in API responses (error messages) may stay in French.
 
