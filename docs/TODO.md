@@ -703,9 +703,9 @@ git commit -m "feat: add AI score rating widget (UI only)"
 
 ## Task 4 — History page (UI only)
 
-A dedicated page showing mock history entries shaped like `EvaluationHistoryDTO`.
+A dedicated page showing mock history entries shaped like `EvaluationHistoryDto`.
 
-**Backend contract (`EvaluationHistoryDTO`):**
+**Backend contract (`EvaluationHistoryDto`):**
 
 ```csharp
 string   Id
@@ -739,7 +739,7 @@ import HistoryPage from './pages/HistoryPage.vue'
 }
 ```
 
-- [ ] **Create `HistoryPage.vue`** with mock data shaped exactly like `EvaluationHistoryDTO`:
+- [ ] **Create `HistoryPage.vue`** with mock data shaped exactly like `EvaluationHistoryDto`:
 
 ```vue
 <script setup>
@@ -869,7 +869,7 @@ const logout = () => {
 
 ```bash
 git add frontend/src/pages/HistoryPage.vue frontend/src/router.js
-git commit -m "feat: add history page with mock data matching EvaluationHistoryDTO"
+git commit -m "feat: add history page with mock data matching EvaluationHistoryDto"
 ```
 
 ---
@@ -1284,11 +1284,11 @@ git commit -m "feat: connect history page to real backend API"
 
 **Files:**
 - Modify: `backend/Program.cs`
-- Modify: `backend/App/AuthController.cs`
-- Modify: `backend/App/EvalController.cs`
-- Modify: `backend/Logic/AuthService.cs`
-- Modify: `backend/Logic/EvaluationServices.cs`
-- Modify: `backend/Logic/ImpactCalculator.cs`
+- Modify: `backend/Controllers/AuthController.cs`
+- Modify: `backend/Controllers/EvaluationController.cs`
+- Modify: `backend/Services/AuthService.cs`
+- Modify: `backend/Services/EvaluationService.cs`
+- Modify: `backend/Services/ImpactCalculator.cs`
 
 Translate all French comments to English. UI-facing strings returned in API responses (error messages) may stay in French.
 
