@@ -1,9 +1,9 @@
-namespace InnovationProject.Logic.Interfaces;
-using InnovationProject.App.DTOs;
+namespace InnovationProject.Interfaces;
+using InnovationProject.Dtos;
 
 public interface IEvaluationService
 {
-    Task<(bool Success, IEnumerable<EvaluationHistoryDTO> History, IEnumerable<string> Errors)> GetUserHistoryAsync(
+    Task<(bool Success, IEnumerable<EvaluationHistoryDto> History, IEnumerable<string> Errors)> GetUserHistoryAsync(
         string userId,
         double? minCarbon = null,
         double? maxCarbon = null,

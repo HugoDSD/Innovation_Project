@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using InnovationProject.Logic.Interfaces;
-using InnovationProject.App.DTOs;
+using InnovationProject.Interfaces;
+using InnovationProject.Dtos;
 
 
-namespace InnovationProject.App.Controllers;
+namespace InnovationProject.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

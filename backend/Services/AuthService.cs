@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
-using InnovationProject.Model;
-using InnovationProject.Logic.Interfaces;
+using InnovationProject.Models;
+using InnovationProject.Interfaces;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 
 
 
-namespace InnovationProject.Logic.Services;
+namespace InnovationProject.Services;
 
 public class AuthService : IAuthService
 {

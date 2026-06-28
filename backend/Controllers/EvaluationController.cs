@@ -1,20 +1,20 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using InnovationProject.Logic.Interfaces;
-using InnovationProject.App.DTOs;
+using InnovationProject.Interfaces;
+using InnovationProject.Dtos;
 
 
-namespace InnovationProject.App.Controllers;
+namespace InnovationProject.Controllers;
 
 [ApiController]
 [Route("api/Evaluation")]
 [Authorize] // Blocks the frontend request if it has no valid token
-public class EvalController : ControllerBase
+public class EvaluationController : ControllerBase
 {
     private readonly IEvaluationService _evaluationService;
 
-    public EvalController(IEvaluationService evaluationService)
+    public EvaluationController(IEvaluationService evaluationService)
     {
         _evaluationService = evaluationService;
     }

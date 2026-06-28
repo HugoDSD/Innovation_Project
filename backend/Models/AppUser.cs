@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace InnovationProject.Model
+namespace InnovationProject.Models
 {
     public class AppUser : IdentityUser
     {

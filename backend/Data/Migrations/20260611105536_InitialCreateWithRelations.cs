@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace InnovationProject.Migrations
+namespace InnovationProject.Data.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreateWithRelations : Migration

@@ -1,6 +1,6 @@
-using InnovationProject.App.DTOs;
+using InnovationProject.Dtos;
 
-namespace InnovationProject.Logic.Calculators;
+namespace InnovationProject.Services;
 
 public class ImpactCalculator
 {

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using InnovationProject.Model;
-using InnovationProject.Persist;
-using InnovationProject.Logic.Services;
-using InnovationProject.Logic.Interfaces;
+using InnovationProject.Models;
+using InnovationProject.Data;
+using InnovationProject.Services;
+using InnovationProject.Interfaces;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -25,7 +25,7 @@ builder.Services.AddDbContext<AppDb>(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<AppUser>()
     .AddEntityFrameworkStores<AppDb>();
-builder.Services.AddScoped<IEvaluationService, EvaluationServices>();
+builder.Services.AddScoped<IEvaluationService, EvaluationService>();
 
 
 

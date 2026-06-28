@@ -1,17 +1,17 @@
 using Microsoft.EntityFrameworkCore;
-using InnovationProject.App.DTOs;
-using InnovationProject.Logic.Interfaces;
-using InnovationProject.Persist;
-using InnovationProject.Logic.Calculators;
-using InnovationProject.Model;
+using InnovationProject.Dtos;
+using InnovationProject.Interfaces;
+using InnovationProject.Data;
+using InnovationProject.Services;
+using InnovationProject.Models;
 
 
-namespace InnovationProject.Logic.Services;
+namespace InnovationProject.Services;
 
-public class EvaluationServices : IEvaluationService
+public class EvaluationService : IEvaluationService
 {
     private readonly AppDb _context; 
-    public EvaluationServices(AppDb context)
+    public EvaluationService(AppDb context)
     {
         _context = context;
     }
@@ -85,7 +85,7 @@ public class EvaluationServices : IEvaluationService
 
 
 
-    public async Task<(bool Success, IEnumerable<EvaluationHistoryDTO> History, IEnumerable<string> Errors)> GetUserHistoryAsync(string userId, double? minCarbon = null, double? maxCarbon = null,string? aiScore = null,  DateTime? startDate = null,DateTime? endDate = null)
+    public async Task<(bool Success, IEnumerable<EvaluationHistoryDto> History, IEnumerable<string> Errors)> GetUserHistoryAsync(string userId, double? minCarbon = null, double? maxCarbon = null,string? aiScore = null,  DateTime? startDate = null,DateTime? endDate = null)
     {
         try
         {
@@ -134,7 +134,7 @@ public class EvaluationServices : IEvaluationService
             var evaluations = await query.ToListAsync();
 
             // 5. MAPPING TO THE DTO (output object)
-            var historyDtos = evaluations.Select(e => new EvaluationHistoryDTO
+            var historyDtos = evaluations.Select(e => new EvaluationHistoryDto
             {
                 Id = e.Id.ToString(), 
                 ModelName = e.ModelName,
@@ -154,7 +154,7 @@ public class EvaluationServices : IEvaluationService
         catch (Exception ex)
         {
             // In case of a database connection problem
-            return (false, Enumerable.Empty<EvaluationHistoryDTO>(), new[] { $"Erreur lors de la récupération : {ex.Message}" });
+            return (false, Enumerable.Empty<EvaluationHistoryDto>(), new[] { $"Erreur lors de la récupération : {ex.Message}" });
         }
     }
 }
