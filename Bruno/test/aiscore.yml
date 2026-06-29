@@ -1,0 +1,23 @@
+info:
+  name: aiscore
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: http://localhost:5051/api/Evaluation/4/score
+  body:
+    type: json
+    data: |-
+      {
+        "aiScore": "cool"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzZmZmZDgxMi1iNzk5LTRkYmUtODA2ZC05NWZhN2EwNDc5YmEiLCJlbWFpbCI6Imhhc3NhbmUudGVzdEBlZnJlaS5mciIsImdpdmVuX25hbWUiOiJIdWdvIiwiZmFtaWx5X25hbWUiOiJERSBTT1VTQSBESUFTIiwianRpIjoiYTI4YzdmZWItZDFkMy00OTBmLWI2MTItZDQ2NGJmMmI5N2JlIiwibmJmIjoxNzgyMTYxODIwLCJleHAiOjE3ODIxNjkwMjAsImlhdCI6MTc4MjE2MTgyMH0.oMW2G8V6TVGEz89X8BiuGr3_CS-pmzM9h-ONeNByKXc
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

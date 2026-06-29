@@ -1,0 +1,25 @@
+info:
+  name: inscription
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:5051/api/Auth/register
+  body:
+    type: json
+    data: |-
+      {
+        "email": "bruno.test@efrei.fr",
+        "password": "Password123!",
+        "name": "Hugo",
+        "surname": "DE SOUSA DIAS",
+        "companyName": "Efrei Finance"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
