@@ -18,43 +18,40 @@ public class EvaluationServices : IEvaluationService
     
     public async Task<EvaluationResultDto> EvaluateProjectAsync(EvaluationRequestDto request, string userId)
     {
-        //On utilise le calculateur pour obtenir les métriques et la décision d'approbation
-        var calculator = new ImpactCalculator();
-        var result = calculator.EvaluateProject(request);
+        //  (STUB) :   ICI  on devras faire l'appel à l'API (OpenAI/Claude)
+    var calculator = new ImpactCalculator();
+    var result = calculator.EvaluateProject(request);
 
-        if (!result.IsApproved && result.Message.StartsWith("ERREUR"))
-        {
-            return result;
-        }
+    var history = new EvaluationHistory
+    {
+        UserId = userId,
+        ModelName = request.AiModel, // Changé de ModelName vers AiModel (pour correspondre au DTO)
+        AiScore = "", 
+        CarbonFootprint = result.TotalCarbonKg,
+        WaterFootprintLiters = result.TotalWaterLiters,
+        EnergyKwh = result.TotalEnergyKwh,
+        CostUsd = result.TotalCostUsd,
+        ValueSavedEur = result.ValueSavedEur,
+        
+        EfficiencyRating = result.EfficiencyRating,
+        EnvironmentalRating = result.EnvironmentalRating,
+        EconomicRating = result.EconomicRating,
+        RiskRating = result.RiskRating,
+        VerdictLevel = result.VerdictLevel,
 
-        // 3. On prépare la "boîte" pour PostgreSQL avec toutes les nouvelles métriques
-        var history = new EvaluationHistory
-        {
-            UserId = userId,
-            ModelName = request.ModelName,
-            AiScore = "", // La note de l'IA est vide au moment du calcul et sera remplie plus tard par l'utilisateur par EvaluateAiScore
-            CarbonFootprint = result.TotalCarbonKg,
-            WaterFootprintLiters = result.TotalWaterLiters,
-            EnergyKwh = result.TotalEnergyKwh,
-            CostUsd = result.TotalCostUsd,
-            HoursSaved = result.TotalHoursSaved,
-            RiskScore = result.RiskScore,
-            IsApproved = result.IsApproved,
-            CreatedAt = DateTime.UtcNow
-        };
+        IsApproved = result.VerdictLevel != "Déconseillé",
+        CreatedAt = DateTime.UtcNow
+    };
 
-        // On sauvegarde dans la base de données 
-        _context.EvaluationHistory.Add(history);
-        await _context.SaveChangesAsync();
+    _context.EvaluationHistory.Add(history);
+    await _context.SaveChangesAsync();
 
+    result.EvaluationId = history.Id;
 
-        result.EvaluationId = history.Id;
-
-
-        return result;
+    return result;
     }
 
-    public async Task<EvaluationResultDto> EvaluateAiScoreAsync(int evaluationId, EvaluationAiScoreDto request, string userId)
+    public async Task<(bool Success, string Message)> EvaluateAiScoreAsync(int evaluationId, EvaluationAiScoreDto request, string userId)
     {
         // On récupère l'évaluation depuis la base de données
         var evaluation = await _context.EvaluationHistory
@@ -62,40 +59,30 @@ public class EvaluationServices : IEvaluationService
 
         if (evaluation == null)
         {
-            return new EvaluationResultDto
-            {
-                IsApproved = false,
-                Message = "Évaluation introuvable ou vous n'avez pas l'autorisation de la modifier."
-            };
+            return (false, "Évaluation introuvable ou vous n'avez pas l'autorisation de la modifier.");
         }
 
+        // Mise à jour de la note
         evaluation.AiScore = request.AiScore;
-
         await _context.SaveChangesAsync();
 
-        return new EvaluationResultDto
-        {
-            IsApproved = true,
-            Message = "La note de l'IA a été enregistrée avec succès.",
-            EvaluationId = evaluation.Id
-        };
+        return (true, "La note de l'IA a été enregistrée avec succès.");
     }
 
 
 
 
-
+    
     public async Task<(bool Success, IEnumerable<EvaluationHistoryDTO> History, IEnumerable<string> Errors)> GetUserHistoryAsync(string userId, double? minCarbon = null, double? maxCarbon = null,string? aiScore = null,  DateTime? startDate = null,DateTime? endDate = null)
     {
         try
         {
-            // 1. LA REQUÊTE DE BASE (On cible l'utilisateur connecté)
-            // AsQueryable() permet de préparer la requête sans l'exécuter tout de suite.
+            // 1. LA REQUÊTE DE BASE
             var query = _context.EvaluationHistory
                                 .Where(h => h.UserId == userId)
                                 .AsQueryable();
 
-            // 2. L'EMPILAGE DES FILTRES (Dynamique)
+            // On empile les differents filtre eventuel pour la requete postgre
             if (minCarbon.HasValue)
             {
                 query = query.Where(h => h.CarbonFootprint >= minCarbon.Value);
@@ -108,7 +95,6 @@ public class EvaluationServices : IEvaluationService
 
             if (!string.IsNullOrEmpty(aiScore))
             {
-                // Comparaison insensible à la casse au cas où le front enverrait "utile" au lieu de "Utile"
                 query = query.Where(h => h.AiScore.ToLower() == aiScore.ToLower());
             }
 
@@ -120,20 +106,18 @@ public class EvaluationServices : IEvaluationService
 
             if (endDate.HasValue)
             {
-                // On met l'heure à 23:59:59 pour inclure toute la journée de fin
                 var endOfDay = endDate.Value.Date.AddDays(1).AddTicks(-1);
                 var endUtc = DateTime.SpecifyKind(endOfDay, DateTimeKind.Utc);
                 query = query.Where(h => h.CreatedAt <= endUtc);
             }
 
-            // 3. LE TRI (Optionnel mais recommandé)
-            // On trie du plus récent au plus ancien, c'est plus logique pour un historique.
+            // le tri
             query = query.OrderByDescending(h => h.CreatedAt);
 
-            // 4. L'EXÉCUTION (Le moment où on envoie le SQL généré à PostgreSQL)
+            // On execute
             var evaluations = await query.ToListAsync();
 
-            // 5. LE MAPPING VERS LE DTO (Boîte de sortie)
+            // mapping du DTO
             var historyDtos = evaluations.Select(e => new EvaluationHistoryDTO
             {
                 Id = e.Id.ToString(), 
@@ -143,8 +127,15 @@ public class EvaluationServices : IEvaluationService
                 WaterFootprintLiters = e.WaterFootprintLiters,
                 EnergyKwh = e.EnergyKwh,
                 CostUsd = e.CostUsd,
-                HoursSaved = e.HoursSaved,
-                RiskScore = e.RiskScore,
+                ValueSavedEur = e.ValueSavedEur, // Nouvelle donnée
+                
+                // Nouvelles notes
+                EfficiencyRating = e.EfficiencyRating,
+                EnvironmentalRating = e.EnvironmentalRating,
+                EconomicRating = e.EconomicRating,
+                RiskRating = e.RiskRating,
+                VerdictLevel = e.VerdictLevel,
+                
                 IsApproved = e.IsApproved,
                 CreatedAt = e.CreatedAt
             });
@@ -153,7 +144,6 @@ public class EvaluationServices : IEvaluationService
         }
         catch (Exception ex)
         {
-            // En cas de problème de connexion à la base de données
             return (false, Enumerable.Empty<EvaluationHistoryDTO>(), new[] { $"Erreur lors de la récupération : {ex.Message}" });
         }
     }

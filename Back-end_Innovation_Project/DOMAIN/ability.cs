@@ -22,7 +22,7 @@ public interface IEvaluationService
 
     Task<EvaluationResultDto> EvaluateProjectAsync(EvaluationRequestDto request, string userId);
     
-    Task<EvaluationResultDto> EvaluateAiScoreAsync(int evaluationId, EvaluationAiScoreDto request, string userId);
+    Task<(bool Success, string Message)> EvaluateAiScoreAsync(int evaluationId, EvaluationAiScoreDto request, string userId);
 
 }
 

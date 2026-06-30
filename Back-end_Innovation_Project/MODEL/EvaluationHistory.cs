@@ -18,16 +18,28 @@ namespace Back_end_Innovation_Project.MODEL
         public string AiScore { get; set; } = string.Empty;
 
 
+
+        // Métriques physiques
         public double CarbonFootprint { get; set; }
         public double WaterFootprintLiters { get; set; }
         public double EnergyKwh { get; set; }
-
         public double CostUsd { get; set; }
-        public double HoursSaved { get; set; }
-        public double RiskScore { get; set; }
+        public double ValueSavedEur { get; set; } 
 
 
-        public bool IsApproved { get; set; }
+
+        // Nouvelles notes (1 à 5)
+        public int EfficiencyRating { get; set; }
+        public int EnvironmentalRating { get; set; }
+        public int EconomicRating { get; set; }
+        public int RiskRating { get; set; }
+
+        // Verdict
+        public string VerdictLevel { get; set; } = string.Empty;
+
+        // ⚠️ TEMPORAIRE : On garde ce champ pour ne pas casser immédiatement tes autres requêtes GET, 
+        // mais il est techniquement redondant avec VerdictLevel.
+        public bool IsApproved { get; set; } 
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

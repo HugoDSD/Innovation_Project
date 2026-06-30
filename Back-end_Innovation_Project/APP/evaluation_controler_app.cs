@@ -22,25 +22,17 @@ public class EvalController : ControllerBase
 
     
 
-    [HttpPost("calculate")]
+   [HttpPost("calculate")]
     public async Task<IActionResult> CalculateImpact(EvaluationRequestDto request)
     {
-        //  On récupère l'ID utilisateur extrait du header du token
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        // Sécurité supplémentaire au cas où le claim serait introuvable
         if (string.IsNullOrEmpty(userIdFromToken))
         {
             return Unauthorized(new[] { "Impossible d'identifier l'utilisateur à partir du token." });
         } 
 
-
-       var result = await _evaluationService.EvaluateProjectAsync(request, userIdFromToken);
-
-        if (!result.IsApproved && result.Message.StartsWith("ERREUR"))
-        {
-            return BadRequest(result);
-        }
+        var result = await _evaluationService.EvaluateProjectAsync(request, userIdFromToken);
         return Ok(result);
     }
 
@@ -51,44 +43,39 @@ public class EvalController : ControllerBase
     [HttpPut("{RequestId}/score")]
     public async Task<IActionResult> EvaluateAiscore(int RequestId, [FromBody] EvaluationAiScoreDto request)
     {
-
         if (RequestId <= 0)
         {
             return BadRequest(new[] { "L'ID de la requête est invalide." });
         }
 
-        // 2. On récupère l'ID utilisateur extrait du Token comme pour l'evaluation
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userIdFromToken))
         {
             return Unauthorized(new[] { "Impossible d'identifier l'utilisateur à partir du token." });
         } 
-        var result = await _evaluationService.EvaluateAiScoreAsync(RequestId, request, userIdFromToken);
 
-        if (!result.IsApproved && (result.Message.StartsWith("ERREUR") || result.Message.Contains("introuvable")))
+        // On utilise un Tuple (Success, Message) pour une réponse plus propre
+        var (success, message) = await _evaluationService.EvaluateAiScoreAsync(RequestId, request, userIdFromToken);
+
+        if (!success)
         {
-            return BadRequest(result);
+            return BadRequest(new { message = message });
         }
 
-        return Ok(new 
-        { 
-            isApproved = result.IsApproved,
-            evaluationId = result.EvaluationId,
-            message = result.Message 
-        });
+        return Ok(new { message = message, evaluationId = RequestId });
     }
 
+
+    
     [HttpGet("history")]
-    public async  Task<IActionResult> GetUserHistory( double? minCarbon = null,  double? maxCarbon = null,string? aiScore = null, DateTime? startDate = null, DateTime? endDate = null)
+    public async Task<IActionResult> GetUserHistory(double? minCarbon = null, double? maxCarbon = null, string? aiScore = null, DateTime? startDate = null, DateTime? endDate = null)
     {
-        //  On récupère l'ID utilisateur extrait du Token comme pour l'evaluation
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdFromToken))
         {
             return Unauthorized(new[] { "Impossible d'identifier l'utilisateur à partir du token." });
         } 
-
         
         var (success, history, errors) = await _evaluationService.GetUserHistoryAsync(userIdFromToken, minCarbon, maxCarbon, aiScore, startDate, endDate);
 

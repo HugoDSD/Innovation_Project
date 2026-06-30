@@ -28,6 +28,19 @@ builder.Services.AddIdentityApiEndpoints<AppUser>()
     .AddEntityFrameworkStores<AppDb>();
 builder.Services.AddScoped<IEvaluationService, EvaluationServices>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        // Remplace par l'URL exacte de ton front-end Vue.js
+        policy.WithOrigins("http://localhost:5173", "http://localhost:5174") 
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// ...
+
 
 
 // --- CONFIGURATION DE L'AUTHENTIFICATION JWT ---
@@ -69,6 +82,7 @@ var app = builder.Build();
 // app.UseMiddleware<ExceptionHandlingMiddleware>();  // Décommente cette ligne une fois qu'on auras ajouté la classe ExceptionHandlingMiddleware à ton projet
 
 // Activation de la sécurité dans le pipeline
+app.UseCors("AllowFrontend");
 app.UseAuthentication(); // il permet de verifier qui notamment avec le token
 app.UseAuthorization();  // est ce qu'il en a le droit
 
