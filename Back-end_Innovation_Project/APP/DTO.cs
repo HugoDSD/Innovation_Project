@@ -39,14 +39,37 @@ public class EvaluationHistoryDTO
     public string ModelName { get; set; } = string.Empty;
     public string AiScore { get; set; } = string.Empty; 
 
-    // --- Les métriques physiques ---
+    // --- Les métriques physiques du model choisi par l'utilisateur ---
     public double CarbonFootprint { get; set; }
     public double WaterFootprintLiters { get; set; }
     public double EnergyKwh { get; set; }
     public double CostUsd { get; set; }
     public double ValueSavedEur { get; set; } // Remplace "HoursSaved"
 
-    // --- Les nouvelles notes et le verdict ---
+
+    // --- Comparaison d'ia sur l'environement et l'économie ---
+    public string RecommendedEnvModel { get; set; } = string.Empty;
+    public string RecommendedEnvComplexity { get; set; } = string.Empty;
+    public double RecommendedEnvEnergyKwh { get; set; }
+    public double RecommendedEnvWaterLiters { get; set; }
+    public double RecommendedEnvCostUsd { get; set; }
+
+
+
+    public string RecommendedEcoModel { get; set; } = string.Empty;
+    public string RecommendedEcoComplexity { get; set; } = string.Empty;
+    public double RecommendedEcoEnergyKwh { get; set; } // NOUVEAU
+    public double RecommendedEcoWaterLiters { get; set; } // NOUVEAU
+    public double RecommendedEcoCostUsd { get; set; }
+
+
+    public string RecommendedQualityModel { get; set; } = string.Empty;
+    public string RecommendedQualityComplexity { get; set; } = string.Empty;
+    public double RecommendedQualityEnergyKwh { get; set; }
+    public double RecommendedQualityWaterLiters { get; set; }
+    public double RecommendedQualityCostUsd { get; set; }
+   
+    // --- Les  notes et le verdict ---
     public int EfficiencyRating { get; set; }
     public int EnvironmentalRating { get; set; }
     public int EconomicRating { get; set; }
@@ -62,22 +85,23 @@ public class EvaluationHistoryDTO
 
 public class EvaluationRequestDto
 {
-    // --- PARTIE DÉFINITIVE ---
     public required string WorkflowDescription { get; set; }
     public int RunFrequency { get; set; }
     public int EmployeeCount { get; set; }
     public double HoursPerRun { get; set; }
-    public required string ExperienceLevel { get; set; } // "junior", "confirmé", "senior", "expert"
-    public required string AiModel { get; set; }
-    public required string CloudProvider { get; set; }
+    public required string ExperienceLevel { get; set; }
+    
+    // NOUVEAUX CHAMPS FRONT
+    public required string AiModel { get; set; } // "GPT", "Claude", "DeepSeek"
+    public required string Complexity { get; set; } // "petit", "grand"
 
-
-    // --- PARTIE TEMP (ap la mise en place de l'API OpenAI/Claude ) ---
     public long InputTokens { get; set; }
     public long OutputTokens { get; set; }
-    public double AiSavingsFraction { get; set; } // Fraction (ex: 0.5)
-    public required string DataSensitivity { get; set; } // "public", "interne", "confidentiel", "réglementé"
-    public required string LegalRisk { get; set; } // "faible", "modéré", "élevé", "critique"
+    public double AiSavingsFraction { get; set; }
+    public required string DataSensitivity { get; set; }
+    public required string LegalRisk { get; set; }
+    public required string UseCase { get; set; } 
+
 }
 
 public class EvaluationResultDto
@@ -100,6 +124,28 @@ public class EvaluationResultDto
     public double TotalWaterLiters { get; set; }
     public double TotalCostUsd { get; set; }
     public double ValueSavedEur { get; set; }
+
+
+    public string RecommendedEnvModel { get; set; } = string.Empty;
+    public string RecommendedEnvComplexity { get; set; } = string.Empty;
+    public double RecommendedEnvEnergyKwh { get; set; }
+    public double RecommendedEnvWaterLiters { get; set; }
+    public double RecommendedEnvCostUsd { get; set; } // NOUVEAU
+
+
+    public string RecommendedEcoModel { get; set; } = string.Empty;
+    public string RecommendedEcoComplexity { get; set; } = string.Empty;
+    public double RecommendedEcoEnergyKwh { get; set; } // NOUVEAU
+    public double RecommendedEcoWaterLiters { get; set; } // NOUVEAU
+    public double RecommendedEcoCostUsd { get; set; }
+
+
+    public string RecommendedQualityModel { get; set; } = string.Empty;
+    public string RecommendedQualityComplexity { get; set; } = string.Empty;
+    public double RecommendedQualityEnergyKwh { get; set; }
+    public double RecommendedQualityWaterLiters { get; set; }
+    public double RecommendedQualityCostUsd { get; set; }
+
 }
 
 public class EvaluationAiScoreDto

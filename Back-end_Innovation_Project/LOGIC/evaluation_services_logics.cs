@@ -33,6 +33,25 @@ public class EvaluationServices : IEvaluationService
         CostUsd = result.TotalCostUsd,
         ValueSavedEur = result.ValueSavedEur,
         
+        RecommendedEnvModel = result.RecommendedEnvModel,
+        RecommendedEnvComplexity = result.RecommendedEnvComplexity,
+        RecommendedEnvEnergyKwh = result.RecommendedEnvEnergyKwh,
+        RecommendedEnvWaterLiters = result.RecommendedEnvWaterLiters,
+        RecommendedEnvCostUsd = result.RecommendedEnvCostUsd, 
+
+        RecommendedEcoModel = result.RecommendedEcoModel,
+        RecommendedEcoComplexity = result.RecommendedEcoComplexity,
+        RecommendedEcoEnergyKwh = result.RecommendedEcoEnergyKwh, 
+        RecommendedEcoWaterLiters = result.RecommendedEcoWaterLiters, 
+        RecommendedEcoCostUsd = result.RecommendedEcoCostUsd,
+
+
+        RecommendedQualityModel = result.RecommendedQualityModel,
+        RecommendedQualityComplexity = result.RecommendedQualityComplexity,
+        RecommendedQualityEnergyKwh = result.RecommendedQualityEnergyKwh,
+        RecommendedQualityWaterLiters = result.RecommendedQualityWaterLiters,
+        RecommendedQualityCostUsd = result.RecommendedQualityCostUsd,
+                
         EfficiencyRating = result.EfficiencyRating,
         EnvironmentalRating = result.EnvironmentalRating,
         EconomicRating = result.EconomicRating,
@@ -129,6 +148,24 @@ public class EvaluationServices : IEvaluationService
                 CostUsd = e.CostUsd,
                 ValueSavedEur = e.ValueSavedEur, // Nouvelle donnée
                 
+                RecommendedEnvModel = e.RecommendedEnvModel,
+                RecommendedEnvComplexity = e.RecommendedEnvComplexity,
+                RecommendedEnvEnergyKwh = e.RecommendedEnvEnergyKwh,
+                RecommendedEnvWaterLiters = e.RecommendedEnvWaterLiters,
+                RecommendedEnvCostUsd = e.RecommendedEnvCostUsd, 
+
+                RecommendedEcoModel = e.RecommendedEcoModel,
+                RecommendedEcoComplexity = e.RecommendedEcoComplexity,
+                RecommendedEcoEnergyKwh = e.RecommendedEcoEnergyKwh, 
+                RecommendedEcoWaterLiters = e.RecommendedEcoWaterLiters, 
+                RecommendedEcoCostUsd = e.RecommendedEcoCostUsd,
+
+                RecommendedQualityModel = e.RecommendedQualityModel,
+                RecommendedQualityComplexity = e.RecommendedQualityComplexity,
+                RecommendedQualityEnergyKwh = e.RecommendedQualityEnergyKwh,
+                RecommendedQualityWaterLiters = e.RecommendedQualityWaterLiters,
+                RecommendedQualityCostUsd = e.RecommendedQualityCostUsd,
+                        
                 // Nouvelles notes
                 EfficiencyRating = e.EfficiencyRating,
                 EnvironmentalRating = e.EnvironmentalRating,

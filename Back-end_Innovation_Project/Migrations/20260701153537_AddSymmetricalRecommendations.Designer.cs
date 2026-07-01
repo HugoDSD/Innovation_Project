@@ -3,6 +3,7 @@ using System;
 using Back_end_Innovation_Project.PERSIST;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Back_end_Innovation_Project.Migrations
 {
     [DbContext(typeof(AppDb))]
-    partial class AppDbModelSnapshot : ModelSnapshot
+    [Migration("20260701153537_AddSymmetricalRecommendations")]
+    partial class AddSymmetricalRecommendations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -172,23 +175,6 @@ namespace Back_end_Innovation_Project.Migrations
                         .HasColumnType("text");
 
                     b.Property<double>("RecommendedEnvWaterLiters")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("RecommendedQualityComplexity")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("RecommendedQualityCostUsd")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("RecommendedQualityEnergyKwh")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("RecommendedQualityModel")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("RecommendedQualityWaterLiters")
                         .HasColumnType("double precision");
 
                     b.Property<int>("RiskRating")

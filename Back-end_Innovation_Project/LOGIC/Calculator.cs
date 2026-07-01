@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Back_end_Innovation_Project.APP.DTOs;
 
@@ -24,37 +25,58 @@ public class ImpactCalculator
     // Constantes physiques
     private const double MixElectriqueFrance = 0.0801;
     
-    //  TEMPORAIRE : Ces dictionnaires en dur pourront être remplacés plus tard par des appels à l'API models.dev
-    private readonly Dictionary<string, double> _energyPerToken = new() {
-        { "GPT OSS 20B", 7.888889e-09 }, { "GPT OSS 120B", 1.102778e-08 },
-        { "DeepSeek V3.1", 3.708611e-07 }, { "DeepSeek R1", 6.600556e-07 }
+    private readonly Dictionary<string, Dictionary<string, ModelSpecs>> _aiSpecs = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "GPT", new(StringComparer.OrdinalIgnoreCase) {
+            { "petit", new ModelSpecs(1.5e-07, 6e-07, 7.88888888888889e-09, 0.03) },
+            { "grand", new ModelSpecs(3e-06, 1.5e-05, 1.1027777777777778e-08, 0.03) }
+        }},
+        { "Claude", new(StringComparer.OrdinalIgnoreCase) {
+            { "petit", new ModelSpecs(3e-06, 1.5e-05, 7.88888888888889e-09, 0.12) },
+            { "grand", new ModelSpecs(5e-06, 2.5e-05, 1.1027777777777778e-08, 0.12) }
+        }},
+        { "DeepSeek", new(StringComparer.OrdinalIgnoreCase) {
+            { "petit", new ModelSpecs(1.4e-07, 2.8e-07, 3.708611111111111e-07, 0.84) },
+            { "grand", new ModelSpecs(4.35e-07, 8.7e-07, 6.600555555555555e-07, 0.84) }
+        }}
     };
 
-    private readonly Dictionary<string, double> _wueProvider = new() {
-        { "Microsoft", 0.03 }, { "Amazon", 0.12 }, { "Référence", 0.84 }
+    private readonly Dictionary<string, string> _useCaseExperts = new(StringComparer.OrdinalIgnoreCase)
+    {
+        // Spécialités GPT
+        { "rédaction business", "GPT" },
+        { "code du quotidien (requête SQL...etc)", "GPT" },
+        { "assistant quotidien", "GPT" },
+        
+        // Spécialités Claude
+        { "code dev", "Claude" },
+        { "analyse de document", "Claude" },
+        { "rédaction rapport", "Claude" },
+        
+        // Spécialités DeepSeek
+        { "décisions logique", "DeepSeek" },
+        { "code technique (debug, algorithme)", "DeepSeek" },
+        { "raisonnement dans un probleme complexe", "DeepSeek" }
     };
 
-    private readonly Dictionary<string, (double Input, double Output)> _costPerToken = new() {
-        { "GPT OSS 20B", (1.5e-07, 6.0e-07) }, { "GPT OSS 120B", (3.0e-06, 1.5e-05) },
-        { "DeepSeek V3.1", (1.4e-07, 2.8e-07) }, { "DeepSeek R1", (5.5e-07, 2.19e-06) }                                      
-    };
 
     public EvaluationResultDto EvaluateProject(EvaluationRequestDto request)
     {
         var result = new EvaluationResultDto();
 
+
+        if (!_aiSpecs.TryGetValue(request.AiModel, out var complexities) || 
+            !complexities.TryGetValue(request.Complexity, out var specs))
+        {
+            throw new ArgumentException($"Modèle ou complexité invalide : {request.AiModel} - {request.Complexity}");
+        }
         // Calculs physiques 
-        double energyPerToken = _energyPerToken.GetValueOrDefault(request.AiModel, 1.0e-08);
         double totalTokens = request.InputTokens + request.OutputTokens;
         
-        result.TotalEnergyKwh = totalTokens * energyPerToken * request.RunFrequency;
+        result.TotalEnergyKwh = totalTokens * specs.EnergyPerToken * request.RunFrequency;
         result.TotalCarbonKg = result.TotalEnergyKwh * MixElectriqueFrance;
-        result.TotalWaterLiters = result.TotalEnergyKwh * _wueProvider.GetValueOrDefault(request.CloudProvider, 0.84);
-
-        if (_costPerToken.TryGetValue(request.AiModel, out var costs))
-        {
-            result.TotalCostUsd = ((request.InputTokens * costs.Input) + (request.OutputTokens * costs.Output)) * request.RunFrequency;
-        }
+        result.TotalWaterLiters = result.TotalEnergyKwh * specs.WaterPerKwh;
+        result.TotalCostUsd = ((request.InputTokens * specs.InputCost) + (request.OutputTokens * specs.OutputCost)) * request.RunFrequency;
 
         double rate = HourlyRates.GetValueOrDefault(request.ExperienceLevel, 50);
         double hoursSavedPerRun = request.AiSavingsFraction * request.EmployeeCount * request.HoursPerRun;
@@ -77,6 +99,33 @@ public class ImpactCalculator
 
         //  Application du Verdict
         ComputeVerdict(result);
+
+        
+
+        FindBestAlternative(request, totalTokens, result);
+
+        string qualityModel = _useCaseExperts.GetValueOrDefault(request.UseCase, request.AiModel);
+        string qualityComplexity = request.Complexity; // On garde la taille demandée par l'utilisateur
+
+        // On va chercher les specs de ce modèle expert dans notre dictionnaire
+        if (_aiSpecs.TryGetValue(qualityModel, out var qComplexities) &&
+            qComplexities.TryGetValue(qualityComplexity, out var qSpecs))
+        {
+            result.RecommendedQualityModel = qualityModel;
+            result.RecommendedQualityComplexity = qualityComplexity;
+            result.RecommendedQualityEnergyKwh = totalTokens * qSpecs.EnergyPerToken * request.RunFrequency;
+            result.RecommendedQualityWaterLiters = result.RecommendedQualityEnergyKwh * qSpecs.WaterPerKwh;
+            result.RecommendedQualityCostUsd = ((request.InputTokens * qSpecs.InputCost) + (request.OutputTokens * qSpecs.OutputCost)) * request.RunFrequency;
+        }
+        else
+        {
+            // Sécurité : si on ne trouve pas (ne devrait jamais arriver), on remet le modèle par défaut
+            result.RecommendedQualityModel = request.AiModel;
+            result.RecommendedQualityComplexity = request.Complexity;
+            result.RecommendedQualityEnergyKwh = result.TotalEnergyKwh;
+            result.RecommendedQualityWaterLiters = result.TotalWaterLiters;
+            result.RecommendedQualityCostUsd = result.TotalCostUsd;
+        }
 
         return result;
     }
@@ -142,4 +191,78 @@ public class ImpactCalculator
         r.GateTriggered = "pass";
         r.VerdictReason = "La valeur justifie l'impact sur les quatre critères — bon choix pour ce workflow.";
     }
+
+
+
+
+
+
+
+    private void FindBestAlternative(EvaluationRequestDto request, double totalTokens, EvaluationResultDto result)
+    {
+        string bestEnvModel = request.AiModel;
+        string bestEnvComplexity = request.Complexity;
+        double minEnvImpact = double.MaxValue;
+        double bestEnvEnergy = result.TotalEnergyKwh;
+        double bestEnvWater = result.TotalWaterLiters;
+        double bestEnvCost = result.TotalCostUsd;
+
+
+        string bestEcoModel = request.AiModel;
+        string bestEcoComplexity = request.Complexity;
+        double minCost = double.MaxValue;
+        double bestEcoCost = result.TotalCostUsd;
+        double bestEcoEnergy = result.TotalEnergyKwh; 
+        double bestEcoWater = result.TotalWaterLiters;
+        // On parcours tous les modèles et complexités pour trouver le plus écologique et le plus economique
+        foreach (var modelKvp in _aiSpecs)
+        {
+            foreach (var compKvp in modelKvp.Value)
+            {
+                var tempSpecs = compKvp.Value;
+                
+                double tempEnergy = totalTokens * tempSpecs.EnergyPerToken * request.RunFrequency;
+                double tempWater = tempEnergy * tempSpecs.WaterPerKwh;
+                double tempCarbon = tempEnergy * MixElectriqueFrance;
+                double tempCost = ((request.InputTokens * tempSpecs.InputCost) + (request.OutputTokens * tempSpecs.OutputCost)) * request.RunFrequency;
+
+                // Évaluation Environnementale (avec un score combiné et un taux de conv de l'eau a l'aide d'un ratio de 0.01)
+                double impactScore = tempCarbon + (tempWater * 0.01); 
+                if (impactScore < minEnvImpact)
+                {
+                    minEnvImpact = impactScore;
+                    bestEnvModel = modelKvp.Key;
+                    bestEnvComplexity = compKvp.Key;
+                    bestEnvEnergy = tempEnergy;
+                    bestEnvWater = tempWater;
+                    bestEnvCost = tempCost; 
+                }
+
+                //  Évaluation Économique 
+                if (tempCost < minCost)
+                {
+                    minCost = tempCost;
+                    bestEcoModel = modelKvp.Key;
+                    bestEcoComplexity = compKvp.Key;
+                    bestEcoCost = tempCost;
+                    bestEcoEnergy = tempEnergy; 
+                    bestEcoWater = tempWater; 
+                }
+            }
+        }
+
+        result.RecommendedEnvModel = bestEnvModel;
+        result.RecommendedEnvComplexity = bestEnvComplexity;
+        result.RecommendedEnvEnergyKwh = bestEnvEnergy;
+        result.RecommendedEnvWaterLiters = bestEnvWater;
+        result.RecommendedEnvCostUsd = bestEnvCost; 
+
+        // Affectation des résultats Économiques
+        result.RecommendedEcoModel = bestEcoModel;
+        result.RecommendedEcoComplexity = bestEcoComplexity;
+        result.RecommendedEcoEnergyKwh = bestEcoEnergy; 
+        result.RecommendedEcoWaterLiters = bestEcoWater; 
+        result.RecommendedEcoCostUsd = bestEcoCost;
+        }
 }
+    public record ModelSpecs(double InputCost, double OutputCost, double EnergyPerToken, double WaterPerKwh);

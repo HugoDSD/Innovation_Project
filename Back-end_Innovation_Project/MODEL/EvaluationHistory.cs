@@ -27,6 +27,27 @@ namespace Back_end_Innovation_Project.MODEL
         public double ValueSavedEur { get; set; } 
 
 
+         // --- RECOMMANDATION ECOLOGIQUE  ---
+        public string RecommendedEnvModel { get; set; } = string.Empty;
+        public string RecommendedEnvComplexity { get; set; } = string.Empty;
+        public double RecommendedEnvEnergyKwh { get; set; }
+        public double RecommendedEnvWaterLiters { get; set; }
+        public double RecommendedEnvCostUsd { get; set; } 
+
+        // --- RECOMMANDATION ECONOMIQUE  ---
+        public string RecommendedEcoModel { get; set; } = string.Empty;
+        public string RecommendedEcoComplexity { get; set; } = string.Empty;
+        public double RecommendedEcoEnergyKwh { get; set; } 
+        public double RecommendedEcoWaterLiters { get; set; } 
+        public double RecommendedEcoCostUsd { get; set; }
+
+        // --- RECOMMANDATION USAGE ---
+        public string RecommendedQualityModel { get; set; } = string.Empty;
+        public string RecommendedQualityComplexity { get; set; } = string.Empty;
+        public double RecommendedQualityEnergyKwh { get; set; }
+        public double RecommendedQualityWaterLiters { get; set; }
+        public double RecommendedQualityCostUsd { get; set; }
+
 
         // Nouvelles notes (1 à 5)
         public int EfficiencyRating { get; set; }

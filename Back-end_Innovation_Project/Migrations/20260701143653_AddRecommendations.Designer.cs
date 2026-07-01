@@ -3,6 +3,7 @@ using System;
 using Back_end_Innovation_Project.PERSIST;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Back_end_Innovation_Project.Migrations
 {
     [DbContext(typeof(AppDb))]
-    partial class AppDbModelSnapshot : ModelSnapshot
+    [Migration("20260701143653_AddRecommendations")]
+    partial class AddRecommendations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,55 +143,18 @@ namespace Back_end_Innovation_Project.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("RecommendedEcoComplexity")
+                    b.Property<string>("RecommendedComplexity")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("RecommendedEcoCostUsd")
+                    b.Property<double>("RecommendedEnergyKwh")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("RecommendedEcoEnergyKwh")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("RecommendedEcoModel")
+                    b.Property<string>("RecommendedModel")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("RecommendedEcoWaterLiters")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("RecommendedEnvComplexity")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("RecommendedEnvCostUsd")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("RecommendedEnvEnergyKwh")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("RecommendedEnvModel")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("RecommendedEnvWaterLiters")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("RecommendedQualityComplexity")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("RecommendedQualityCostUsd")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("RecommendedQualityEnergyKwh")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("RecommendedQualityModel")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("RecommendedQualityWaterLiters")
+                    b.Property<double>("RecommendedWaterLiters")
                         .HasColumnType("double precision");
 
                     b.Property<int>("RiskRating")
