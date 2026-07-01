@@ -28,8 +28,23 @@ export interface WorkflowInput {
   /** Chosen AI model id (see catalog in `data/catalog.ts`). */
   aiModelId: string
   /** Chosen cloud provider / region id. */
+  complexity: string
   cloudProviderId: string
+
+  useCase: string 
+  dataSensitivity: DataSensitivity
+  legalRisk: LegalRisk
+  aiSavingsFraction: number
 }
+
+export interface RecommendationBlock {
+  model: string
+  complexity: string
+  energyKwh: number
+  waterLiters: number
+  costUsd: number
+}
+
 
 /* ------------------------------------------------------------------ *
  * Model & provider metadata (stubbed now, models.dev in a later phase)
@@ -196,8 +211,26 @@ export interface Evaluation {
   id: string
   createdAt: string
   input: WorkflowInput
-  timeline: SessionTimeline
-  variables: DecisionVariables
-  ratings: Ratings
-  verdict: Verdict
+  timeline: SessionTimeline // On garde ça pour l'affichage visuel
+  
+  // --- DONNÉES RENVOYÉES PAR L'API C# ---
+  evaluationId: number
+  verdictLevel: string
+  verdictReason: string
+  gateTriggered: string
+  
+  efficiencyRating: number
+  environmentalRating: number
+  economicRating: number
+  riskRating: number
+  
+  totalEnergyKwh: number
+  totalCarbonKg: number
+  totalWaterLiters: number
+  totalCostUsd: number
+  valueSavedEur: number
+  
+  recommendedEnv: RecommendationBlock
+  recommendedEco: RecommendationBlock
+  recommendedQuality: RecommendationBlock
 }

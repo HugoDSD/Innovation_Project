@@ -14,10 +14,16 @@ const form = reactive<WorkflowInput>({
   employeeCount: 1,
   hoursPerRun: 1,
   experienceLevel: 'confirmé',
-  aiModelId: AI_MODELS[1]!.id,
+  aiModelId: 'GPT', // Utilise "GPT", "Claude" ou "DeepSeek"
+  complexity: 'grand',
   cloudProviderId: CLOUD_PROVIDERS[0]!.id,
+  
+  // Les ajouts
+  useCase: 'rédaction business',
+  dataSensitivity: 'interne',
+  legalRisk: 'faible',
+  aiSavingsFraction: 0.4
 })
-
 const examples = [
   'Traduire à la volée les fiches produit du site e-commerce dans 6 langues, au lieu d\'une agence de traduction.',
   'Trier et résumer les tickets entrants du support client avant qu\'un agent les prenne en charge.',

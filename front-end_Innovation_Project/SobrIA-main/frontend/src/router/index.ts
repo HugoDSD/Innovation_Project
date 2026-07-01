@@ -10,6 +10,11 @@ const router = createRouter({
       component: () => import('@/views/FormView.vue'),
     },
     {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginPage.vue'),
+    },
+    {
       path: '/simulation',
       name: 'simulation',
       component: () => import('@/views/SimulatorView.vue'),
@@ -40,7 +45,13 @@ const router = createRouter({
 })
 
 // Guard: simulation/result need a captured workflow, else send back to the form.
-router.beforeEach((to) => {
+  router.beforeEach((to) => {
+  const isAuthenticated = !!localStorage.getItem('token') // On vérifie le token
+  
+  if (to.name !== 'login' && !isAuthenticated) {
+    return { name: 'login' }
+  }
+  
   if (to.meta.requiresInput && !useEvaluation().state.input) {
     return { name: 'form' }
   }

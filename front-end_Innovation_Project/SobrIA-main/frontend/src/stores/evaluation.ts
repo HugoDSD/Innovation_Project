@@ -1,19 +1,9 @@
-/**
- * Current-evaluation store — a lightweight reactive singleton that carries state
- * across the three screens (form → simulator → result). Avoids pulling in Pinia
- * for a single flow.
- *
- * Pipeline (mirrors the 4 steps of `docs/MODELE-EVALUATION.md`):
- *   form input → generate timeline → derive tokens → derive variables →
- *   score 1–5 → verdict → persist to history.
- */
 import { reactive } from 'vue'
+import axios from 'axios' // À ajouter
 import type { Evaluation, SessionTimeline, WorkflowInput } from '@/types'
 import { getModel } from '@/data/catalog'
-import { deriveDecisionVariables, generateSessionTimeline } from '@/data/stubs'
+import { generateSessionTimeline } from '@/data/stubs'
 import { deriveTokenUsage } from '@/data/timeline'
-import { scoreAll } from '@/scoring/ratings'
-import { computeVerdict } from '@/scoring/verdict'
 import { useHistory } from './history'
 
 interface EvaluationState {
@@ -29,10 +19,9 @@ const state = reactive<EvaluationState>({
 })
 
 function makeId(): string {
-  return `eval-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
+  return `eval-${Date.now().toString(36)}`
 }
 
-/** Screen 1 → screen 2: capture the form and build the (stub) session timeline. */
 export function startEvaluation(input: WorkflowInput): SessionTimeline {
   state.input = input
   state.result = null
@@ -40,32 +29,97 @@ export function startEvaluation(input: WorkflowInput): SessionTimeline {
   return state.timeline
 }
 
-/**
- * Screen 2 → screen 3: run the rest of the pipeline on the captured input and
- * the simulated timeline, then persist. Returns the finished evaluation.
- */
-export function finalizeEvaluation(): Evaluation {
+// DEVRAIT DEVENIR ASYNC POUR ATTENDRE L'API
+export async function finalizeEvaluation(): Promise<Evaluation> {
   if (!state.input || !state.timeline) {
     throw new Error('finalizeEvaluation called before startEvaluation')
   }
+  
+  // Le simulateur front-end a calculé le nombre de tokens
   const tokens = deriveTokenUsage(state.timeline)
-  const variables = deriveDecisionVariables(state.input, tokens)
-  const ratings = scoreAll(variables)
-  const verdict = computeVerdict(ratings)
 
-  const evaluation: Evaluation = {
-    id: makeId(),
-    createdAt: new Date().toISOString(),
-    input: state.input,
-    timeline: state.timeline,
-    variables,
-    ratings,
-    verdict,
+  // 1. Préparation de la requête pour ton DTO C#
+  const requestDto = {
+    workflowDescription: state.input.workflowDescription,
+    runFrequency: state.input.runFrequency,
+    employeeCount: state.input.employeeCount,
+    hoursPerRun: state.input.hoursPerRun,
+    experienceLevel: state.input.experienceLevel,
+    aiModel: state.input.aiModelId, // Doit correspondre à "GPT", "Claude", etc.
+    complexity: state.input.complexity,
+    inputTokens: tokens.inputTokens,
+    outputTokens: tokens.outputTokens,
+    aiSavingsFraction: state.input.aiSavingsFraction,
+    dataSensitivity: state.input.dataSensitivity,
+    legalRisk: state.input.legalRisk,
+    useCase: state.input.useCase
   }
 
-  state.result = evaluation
-  useHistory().add(evaluation)
-  return evaluation
+  try {
+    // 2. Appel à ton API C# (remplace le port par le bon)
+    // /!\ Le token JWT sera géré dynamiquement plus tard
+    const token = localStorage.getItem('jwt_token') || ''
+    
+    const response = await axios.post('http://localhost:5001/api/Evaluation/calculate', requestDto, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    
+    const data = response.data
+
+    // 3. Mapping de la réponse dans l'objet Vue
+    const evaluation: Evaluation = {
+      id: makeId(),
+      createdAt: new Date().toISOString(),
+      input: state.input,
+      timeline: state.timeline,
+      
+      // Mapping des résultats
+      evaluationId: data.evaluationId,
+      verdictLevel: data.verdictLevel,
+      verdictReason: data.verdictReason,
+      gateTriggered: data.gateTriggered,
+      efficiencyRating: data.efficiencyRating,
+      environmentalRating: data.environmentalRating,
+      economicRating: data.economicRating,
+      riskRating: data.riskRating,
+      totalEnergyKwh: data.totalEnergyKwh,
+      totalCarbonKg: data.totalCarbonKg,
+      totalWaterLiters: data.totalWaterLiters,
+      totalCostUsd: data.totalCostUsd,
+      valueSavedEur: data.valueSavedEur,
+      
+      // Les blocs symétriques
+      recommendedEnv: {
+        model: data.recommendedEnvModel,
+        complexity: data.recommendedEnvComplexity,
+        energyKwh: data.recommendedEnvEnergyKwh,
+        waterLiters: data.recommendedEnvWaterLiters,
+        costUsd: data.recommendedEnvCostUsd
+      },
+      recommendedEco: {
+        model: data.recommendedEcoModel,
+        complexity: data.recommendedEcoComplexity,
+        energyKwh: data.recommendedEcoEnergyKwh,
+        waterLiters: data.recommendedEcoWaterLiters,
+        costUsd: data.recommendedEcoCostUsd
+      },
+      recommendedQuality: {
+        model: data.recommendedQualityModel,
+        complexity: data.recommendedQualityComplexity,
+        energyKwh: data.recommendedQualityEnergyKwh,
+        waterLiters: data.recommendedQualityWaterLiters,
+        costUsd: data.recommendedQualityCostUsd
+      }
+    }
+
+    state.result = evaluation
+    useHistory().add(evaluation) // Sauvegarde locale (à remplacer par un GET /history plus tard)
+    return evaluation
+    
+  } catch (error) {
+    console.error("Erreur lors de l'appel API:", error)
+    throw error
+  }
 }
 
 export function useEvaluation() {

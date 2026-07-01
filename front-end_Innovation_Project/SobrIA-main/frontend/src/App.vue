@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import AppStepper from '@/components/AppStepper.vue'
+import apiService from '../src/views/service/apiService.ts'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+function logout() {
+  apiService.logout()
+  router.push('/login')
+}
+
 </script>
 
 <template>
@@ -33,6 +42,12 @@ import AppStepper from '@/components/AppStepper.vue'
           </RouterLink>
         </nav>
       </div>
+      <button 
+      @click="logout"
+      class="ml-4 px-3 py-1.5 rounded-full text-ink-400 hover:text-verdict-bad transition-colors"
+    >
+      Déconnexion
+    </button>
     </header>
 
     <AppStepper />

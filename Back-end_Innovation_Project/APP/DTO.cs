@@ -146,6 +146,9 @@ public class EvaluationResultDto
     public double RecommendedQualityWaterLiters { get; set; }
     public double RecommendedQualityCostUsd { get; set; }
 
+
+    
+
 }
 
 public class EvaluationAiScoreDto
