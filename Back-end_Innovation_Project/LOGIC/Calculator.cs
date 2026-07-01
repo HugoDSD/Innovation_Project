@@ -24,7 +24,6 @@ public class ImpactCalculator
     // Constantes physiques
     private const double MixElectriqueFrance = 0.0801;
     
-    //  TEMPORAIRE : Ces dictionnaires en dur pourront être remplacés plus tard par des appels à l'API models.dev
     private readonly Dictionary<string, double> _energyPerToken = new() {
         { "GPT OSS 20B", 7.888889e-09 }, { "GPT OSS 120B", 1.102778e-08 },
         { "DeepSeek V3.1", 3.708611e-07 }, { "DeepSeek R1", 6.600556e-07 }
@@ -34,16 +33,11 @@ public class ImpactCalculator
         { "Microsoft", 0.03 }, { "Amazon", 0.12 }, { "Référence", 0.84 }
     };
 
-    private readonly Dictionary<string, (double Input, double Output)> _costPerToken = new() {
-        { "GPT OSS 20B", (1.5e-07, 6.0e-07) }, { "GPT OSS 120B", (3.0e-06, 1.5e-05) },
-        { "DeepSeek V3.1", (1.4e-07, 2.8e-07) }, { "DeepSeek R1", (5.5e-07, 2.19e-06) }                                      
-    };
-
-    public EvaluationResultDto EvaluateProject(EvaluationRequestDto request)
+    public EvaluationResultDto EvaluateProject(EvaluationRequestDto request, double inputCost, double outputCost)
     {
         var result = new EvaluationResultDto();
 
-        // Calculs physiques 
+        // 1. Calculs physiques déterministes
         double energyPerToken = _energyPerToken.GetValueOrDefault(request.AiModel, 1.0e-08);
         double totalTokens = request.InputTokens + request.OutputTokens;
         
@@ -51,16 +45,14 @@ public class ImpactCalculator
         result.TotalCarbonKg = result.TotalEnergyKwh * MixElectriqueFrance;
         result.TotalWaterLiters = result.TotalEnergyKwh * _wueProvider.GetValueOrDefault(request.CloudProvider, 0.84);
 
-        if (_costPerToken.TryGetValue(request.AiModel, out var costs))
-        {
-            result.TotalCostUsd = ((request.InputTokens * costs.Input) + (request.OutputTokens * costs.Output)) * request.RunFrequency;
-        }
+        //  Utilisation des coûts injectés dynamiquement depuis l'api
+        result.TotalCostUsd = ((request.InputTokens * inputCost) + (request.OutputTokens * outputCost)) * request.RunFrequency;
 
         double rate = HourlyRates.GetValueOrDefault(request.ExperienceLevel, 50);
         double hoursSavedPerRun = request.AiSavingsFraction * request.EmployeeCount * request.HoursPerRun;
         result.ValueSavedEur = hoursSavedPerRun * rate * request.RunFrequency;
 
-        // On note de 1 à 5
+        // 2. Notation de 1 à 5
         result.EfficiencyRating = RateHigherBetter(result.ValueSavedEur, EfficiencyThresholds);
         
         int co2Rating = RateLowerBetter(result.TotalCarbonKg, Co2Thresholds);
@@ -75,7 +67,7 @@ public class ImpactCalculator
         int worstRisk = Math.Max(sIdx, lIdx);
         result.RiskRating = RiskDominanceTable[Math.Min(worstRisk, 3)];
 
-        //  Application du Verdict
+        // 3. Application du Verdict
         ComputeVerdict(result);
 
         return result;

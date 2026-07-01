@@ -10,17 +10,26 @@ namespace Back_end_Innovation_Project.LOGIC.Services;
 
 public class EvaluationServices : IEvaluationService
 {
+    
     private readonly AppDb _context; 
+    private readonly IModelsDevService _modelsDevService;
     public EvaluationServices(AppDb context)
     {
         _context = context;
     }
     
+
+    public EvaluationServices(AppDb context, IModelsDevService modelsDevService) 
+    {
+        _context = context;
+        _modelsDevService = modelsDevService;
+    }
     public async Task<EvaluationResultDto> EvaluateProjectAsync(EvaluationRequestDto request, string userId)
     {
         //  (STUB) :   ICI  on devras faire l'appel à l'API (OpenAI/Claude)
+    var (inputCost, outputCost) = await _modelsDevService.GetModelPricingAsync(request.AiModel);
     var calculator = new ImpactCalculator();
-    var result = calculator.EvaluateProject(request);
+    var result = calculator.EvaluateProject(request, inputCost, outputCost);
 
     var history = new EvaluationHistory
     {

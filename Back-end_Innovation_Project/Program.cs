@@ -16,6 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 // ==========================================
 
 // Ajout des contrôleurs d'API
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient<IModelsDevService, ModelsDevService>();
 builder.Services.AddControllers();
 
 // Configuration de la base de données PostgreSQL

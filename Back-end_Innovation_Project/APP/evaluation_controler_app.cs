@@ -21,8 +21,7 @@ public class EvalController : ControllerBase
     
 
     
-
-   [HttpPost("calculate")]
+    [HttpPost("calculate")]
     public async Task<IActionResult> CalculateImpact(EvaluationRequestDto request)
     {
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -32,8 +31,16 @@ public class EvalController : ControllerBase
             return Unauthorized(new[] { "Impossible d'identifier l'utilisateur à partir du token." });
         } 
 
-        var result = await _evaluationService.EvaluateProjectAsync(request, userIdFromToken);
-        return Ok(result);
+        try
+        {
+            var result = await _evaluationService.EvaluateProjectAsync(request, userIdFromToken);
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            // On attrape spécifiquement notre erreur de "modèle introuvable"
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     
@@ -67,7 +74,7 @@ public class EvalController : ControllerBase
     }
 
 
-    
+
     [HttpGet("history")]
     public async Task<IActionResult> GetUserHistory(double? minCarbon = null, double? maxCarbon = null, string? aiScore = null, DateTime? startDate = null, DateTime? endDate = null)
     {
