@@ -1518,6 +1518,8 @@ input[type="number"] {
   gap: 0.8rem;
 }
 
+
+
 .history-btn {
   padding: 0.6rem 1rem;
   border-radius: 10px;
