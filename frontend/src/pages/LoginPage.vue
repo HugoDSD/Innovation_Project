@@ -7,28 +7,29 @@ const router = useRouter()
 const isRegistering = ref(false)
 
 const loginForm = ref({ email: '', password: '' })
-const registerForm = ref({ email: '', password: '', name: '', surname: '', companyName: '' })
+const registerForm = ref({
+  email: '',
+  password: '',
+  name: '',
+  surname: '',
+  companyName: ''
+})
 
 const error = ref('')
 const success = ref('')
 const loading = ref(false)
 
-const TEST_EMAIL = 'test@test.com'
-const TEST_PASSWORD = 'test'
-
 const handleLogin = async () => {
   error.value = ''
+  success.value = ''
+
   if (!loginForm.value.email.trim() || !loginForm.value.password.trim()) {
     error.value = 'Veuillez remplir tous les champs'
     return
   }
-  // Compte de test local (sans backend)
-  if (loginForm.value.email === TEST_EMAIL && loginForm.value.password === TEST_PASSWORD) {
-    apiService.setToken('test-token-local')
-    router.push('/app')
-    return
-  }
+
   loading.value = true
+
   try {
     await apiService.login(loginForm.value.email, loginForm.value.password)
     router.push('/app')
@@ -42,14 +43,17 @@ const handleLogin = async () => {
 const handleRegister = async () => {
   error.value = ''
   success.value = ''
+
   const { email, password, name, surname, companyName } = registerForm.value
+
   if (!email.trim() || !password.trim() || !name.trim() || !surname.trim() || !companyName.trim()) {
     error.value = 'Veuillez remplir tous les champs'
     return
   }
+
   loading.value = true
- try {
-    // On envoie les variables, le service s'occupe du formatage JSON
+
+  try {
     await apiService.register(email, password, name, surname, companyName)
     success.value = 'Compte créé avec succès.'
     isRegistering.value = false
@@ -70,49 +74,57 @@ const switchMode = () => {
 <template>
   <div class="login-container">
     <div class="login-box">
-      <h1>EcoIA Évaluateur</h1>
-      <p class="subtitle">{{ isRegistering ? 'Créer un compte' : 'Connectez-vous pour commencer' }}</p>
+      <h1>SobrIA</h1>
+      <p class="subtitle">
+        {{ isRegistering ? 'Créer un compte' : 'Connectez-vous pour commencer' }}
+      </p>
 
       <form v-if="!isRegistering" @submit.prevent="handleLogin">
         <div class="form-group">
           <label>Email</label>
-          <input v-model="loginForm.email" type="email" placeholder="votre@email.com" @keyup.enter="handleLogin">
+          <input v-model="loginForm.email" type="email" placeholder="votre@email.com">
         </div>
+
         <div class="form-group">
           <label>Mot de passe</label>
-          <input v-model="loginForm.password" type="password" placeholder="••••••••" @keyup.enter="handleLogin">
+          <input v-model="loginForm.password" type="password" placeholder="••••••••">
         </div>
-        <p v-if="success" class="success-message">{{ success }}</p>
+
         <p v-if="error" class="error-message">{{ error }}</p>
+
         <button type="submit" class="submit-btn" :disabled="loading">
           {{ loading ? 'Connexion...' : 'Connexion' }}
         </button>
       </form>
 
       <form v-else @submit.prevent="handleRegister">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Prénom</label>
-            <input v-model="registerForm.name" type="text" placeholder="Votre prénom">
-          </div>
-          <div class="form-group">
-            <label>Nom</label>
-            <input v-model="registerForm.surname" type="text" placeholder="Votre nom">
-          </div>
+        <div class="form-group">
+          <label>Prénom</label>
+          <input v-model="registerForm.name" type="text">
         </div>
+
+        <div class="form-group">
+          <label>Nom</label>
+          <input v-model="registerForm.surname" type="text">
+        </div>
+
         <div class="form-group">
           <label>Email</label>
-          <input v-model="registerForm.email" type="email" placeholder="votre@email.com">
+          <input v-model="registerForm.email" type="email">
         </div>
+
         <div class="form-group">
           <label>Mot de passe</label>
-          <input v-model="registerForm.password" type="password" placeholder="••••••••">
+          <input v-model="registerForm.password" type="password">
         </div>
+
         <div class="form-group">
           <label>Entreprise</label>
-          <input v-model="registerForm.companyName" type="text" placeholder="Votre entreprise">
+          <input v-model="registerForm.companyName" type="text">
         </div>
+
         <p v-if="error" class="error-message">{{ error }}</p>
+
         <button type="submit" class="submit-btn" :disabled="loading">
           {{ loading ? 'Inscription...' : 'Créer un compte' }}
         </button>
@@ -124,10 +136,6 @@ const switchMode = () => {
           {{ isRegistering ? 'Se connecter' : "S'inscrire" }}
         </button>
       </p>
-
-      <p v-if="!isRegistering" class="demo-hint">
-        Compte test (sans backend) — <strong>test@test.com</strong> / <strong>test</strong>
-      </p>
     </div>
   </div>
 </template>
@@ -138,143 +146,90 @@ const switchMode = () => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: darkblue;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #0f2f28, #1f5a4a, #3a8d6d);
+  background-size: 400% 400%;
+  animation: gradientMove 12s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .login-box {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 10px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  padding: 3.5rem;
+  border-radius: 18px;
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 h1 {
   text-align: center;
-  color: #333;
-  margin-bottom: 0.5rem;
-  font-size: 1.8rem;
+  color: white;
+  font-size: 2.3rem;
 }
 
 .subtitle {
   text-align: center;
-  color: #666;
+  color: rgba(255,255,255,0.85);
   margin-bottom: 2rem;
-  font-size: 0.95rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
 }
 
 .form-group {
-  margin-bottom: 1.25rem;
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 1.2rem;
 }
 
 label {
+  color: #eaf7f1;
   display: block;
   margin-bottom: 0.4rem;
-  color: #333;
-  font-weight: 500;
-  font-size: 0.9rem;
 }
 
 input {
   width: 100%;
-  padding: 0.7rem;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
-  box-sizing: border-box;
+  padding: 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  color: white;
 }
 
 input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.success-message {
-  color: #27ae60;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-  text-align: center;
-  background: #d4edda;
-  padding: 0.5rem;
-  border-radius: 4px;
-}
-
-.error-message {
-  color: #e74c3c;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-  text-align: center;
-  background: #f8d7da;
-  padding: 0.5rem;
-  border-radius: 4px;
+  border-color: #58c79a;
 }
 
 .submit-btn {
   width: 100%;
-  padding: 0.8rem;
-  background-color: darkblue;
-  color: white;
+  padding: 1rem;
+  border-radius: 12px;
   border: none;
-  border-radius: 5px;
-  font-size: 1rem;
+  background: linear-gradient(135deg, #3fbf8f, #2f9d74);
+  color: white;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s;
+}
+
+.error-message {
+  color: #ffb4a9;
   margin-top: 0.5rem;
-}
-
-.submit-btn:hover:not(:disabled) {
-  opacity: 0.88;
-}
-
-.submit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .switch-link {
   text-align: center;
-  color: #666;
-  font-size: 0.9rem;
   margin-top: 1.5rem;
-  margin-bottom: 0;
+  color: white;
 }
 
 .link-btn {
   background: none;
   border: none;
-  color: darkblue;
-  font-weight: 600;
+  color: #58c79a;
   cursor: pointer;
-  font-size: 0.9rem;
-  padding: 0;
-  text-decoration: underline;
-}
-
-.link-btn:hover {
-  opacity: 0.75;
-}
-
-.demo-hint {
-  text-align: center;
-  color: #888;
-  font-size: 0.8rem;
-  margin-top: 1rem;
-  margin-bottom: 0;
-  padding: 0.5rem;
-  background: #f8f9fa;
-  border-radius: 4px;
 }
 </style>

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginPage from './pages/LoginPage.vue'
 import MainPage from './pages/MainPage.vue'
+import DocumentationPage from './pages/Documentation.vue'
 
 const routes = [
   {
@@ -13,6 +14,12 @@ const routes = [
     name: 'Main',
     component: MainPage,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/documentation',
+    name: 'Documentation',
+    component: DocumentationPage,
+    meta: { requiresAuth: true } 
   },
   {
     path: '/',

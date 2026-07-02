@@ -7,6 +7,7 @@ const router = useRouter()
 
 // Sidebar
 const sidebarOpen = ref(false)
+const showHistory = ref(true)
 
 const useCases = [
   "rédaction business", "code du quotidien (requête SQL...etc)", 
@@ -207,11 +208,7 @@ const handleScoreSubmit = async () => {
       scoreForm.value.aiScore
     )
     scoreResult.value = data
-    
-    // Si l'évaluation est affichée à l'écran, on met à jour son statut
-    if (results.value && String(results.value.evaluationId) === String(scoreForm.value.evaluationId)) {
-      results.value = { ...results.value, isApproved: data.isApproved }
-    }
+
   } catch (e) {
     scoreError.value = e.message || 'Erreur lors de la notation'
   } finally {
@@ -274,14 +271,24 @@ const formatDate = (dateStr) => {
 }
 
 const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
+
 </script>
 
 <template>
   <div class="app-wrapper">
     <header class="header">
       <div class="header-content">
-        <h1>EcoIA Évaluateur</h1>
-        <button class="logout-btn" @click="handleLogout">Déconnexion</button>
+        <h1>SobrIA</h1>
+
+        <div class="header-actions">
+          <button class="history-btn" @click="showHistory = !showHistory">
+            {{ showHistory ? 'Masquer historique' : 'Historique' }}
+          </button>
+          <button class="doc-btn-header" @click="router.push('/documentation')">
+                Documentation
+          </button>
+          <button class="logout-btn" @click="handleLogout">Déconnexion</button>
+        </div>
       </div>
     </header>
 
@@ -316,11 +323,11 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
             <div class="form-row two-cols">
               <div class="form-group">
                 <label>Tokens d'entrée *</label>
-                <input v-model="formData.inputTokens" type="number" min="0">
+                <input v-model="formData.inputTokens" type="number" min="0", placeholder="Ex: 5000 tokens">
               </div>
               <div class="form-group">
                 <label>Tokens de sortie *</label>
-                <input v-model="formData.outputTokens" type="number" min="0">
+                <input v-model="formData.outputTokens" type="number" min="0", placeholder="Ex: 15000 tokens">
               </div>
             </div>
 
@@ -413,82 +420,117 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
         <!-- Results Section -->
         <div v-if="showResults && results" class="results-section">
           <div class="result-header" :class="results.isApproved ? 'hdr-approved' : 'hdr-rejected'">
-            <div class="result-top">
+            <div class="result-top result-top-with-action">
+
               <span class="status-badge" :class="results.isApproved ? 'approved' : 'rejected'">
                 {{ results.isApproved ? 'APPROUVÉ' : 'REJETÉ' }}
               </span>
-              <span class="eval-id">Évaluation #{{ results.evaluationId }}</span>
+
+              <button class="doc-btn" @click="router.push('/documentation')">
+                Documentation
+              </button>
+
             </div>
             <p class="result-message">{{ results.message }}</p>
           </div>
 
           <div class="tabs-container">
-            <button class="tab-btn" :class="{ active: activeTab === 'user' }" @click="activeTab = 'user'">🎯 Votre Choix</button>
-            <button class="tab-btn" :class="{ active: activeTab === 'env' }" @click="activeTab = 'env'">🌱 + Écolo</button>
-            <button class="tab-btn" :class="{ active: activeTab === 'eco' }" @click="activeTab = 'eco'">💰 + Économe</button>
-            <button class="tab-btn" :class="{ active: activeTab === 'quality' }" @click="activeTab = 'quality'">⚡ + Performant</button>
+            <button
+              class="tab-btn"
+              :class="{ active: activeTab === 'user' }"
+              @click="activeTab = 'user'"
+            >
+              Votre choix
+            </button>
+
+            <button
+              class="tab-btn"
+              :class="{ active: activeTab === 'env' }"
+              @click="activeTab = 'env'"
+            >
+              Écologie
+            </button>
+
+            <button
+              class="tab-btn"
+              :class="{ active: activeTab === 'eco' }"
+              @click="activeTab = 'eco'"
+            >
+              Économie
+            </button>
+
+            <button
+              class="tab-btn"
+              :class="{ active: activeTab === 'quality' }"
+              @click="activeTab = 'quality'"
+            >
+              Performance
+            </button>
           </div>
+          <div class="metrics-wrapper" v-if="displayedMetrics">
 
-          <div class="metrics-grid" v-if="displayedMetrics">
-            
-            <div class="metric-card highlight-card">
-              <div class="metric-icon">🤖</div>
-              <div class="metric-value model-name">{{ displayedMetrics.model }}</div>
-              <div class="metric-label">{{ displayedMetrics.label }}</div>
-            </div>
-
-            <div class="metric-card">
-              <div class="metric-icon">⚡</div>
-              <div class="metric-value">{{ fmt(displayedMetrics.energy, 6) }}</div>
-              <div class="metric-label">kWh — Énergie</div>
-            </div>
-            
-            <div class="metric-card">
-              <div class="metric-icon">🌱</div>
-              <div class="metric-value">{{ fmt(displayedMetrics.carbon, 6) }}</div>
-              <div class="metric-label">kg CO₂ — Carbone</div>
-            </div>
-            
-            <div class="metric-card">
-              <div class="metric-icon">💧</div>
-              <div class="metric-value">{{ fmt(displayedMetrics.water, 6) }}</div>
-              <div class="metric-label">Litres — Eau</div>
-            </div>
-            
-            <div class="metric-card">
-              <div class="metric-icon">💸</div>
-              <div class="metric-value">{{ fmt(displayedMetrics.cost, 4) }}</div>
-              <div class="metric-label">USD — Coût API</div>
+            <!-- HERO MODEL -->
+            <div class="metrics-hero">
+              <div class="hero-label">Modèle utilisé</div>
+              <div class="hero-value">{{ displayedMetrics.model }}</div>
             </div>
 
-            <div class="metric-card" v-if="displayedMetrics.valueSaved !== undefined">
-              <div class="metric-icon">💶</div>
-              <div class="metric-value">{{ fmt(displayedMetrics.valueSaved, 2) }}</div>
-              <div class="metric-label">EUR — Valeur Créée (Gain RH)</div>
+            <!-- ENV IMPACT -->
+            <div class="metrics-block">
+
+              <div class="metric-card big">
+                <div class="label">Énergie</div>
+                <div class="value">{{ fmt(displayedMetrics.energy, 6) }} kWh</div>
+              </div>
+
+              <div class="metric-card big">
+                <div class="label">Carbone</div>
+                <div class="value">{{ fmt(displayedMetrics.carbon, 6) }} kg CO₂</div>
+              </div>
+
+              <div class="metric-card big">
+                <div class="label">Eau</div>
+                <div class="value">{{ fmt(displayedMetrics.water, 6) }} L</div>
+              </div>
+
             </div>
 
-            <div class="metric-card" v-if="displayedMetrics.efficiencyRating !== undefined">
-              <div class="metric-icon">⏱️</div>
-              <div class="metric-value">{{ displayedMetrics.efficiencyRating }}<span class="metric-unit">/5</span></div>
-              <div class="metric-label">Score Efficacité</div>
+            <!-- COST -->
+            <div class="metrics-cost">
+              <div class="metric-card cost">
+                <div class="label">Coût API</div>
+                <div class="value">{{ fmt(displayedMetrics.cost, 4) }} USD</div>
+              </div>
             </div>
 
-            <div class="metric-card" v-if="displayedMetrics.envRating !== undefined">
-              <div class="metric-icon">🌍</div>
-              <div class="metric-value">{{ displayedMetrics.envRating }}<span class="metric-unit">/5</span></div>
-              <div class="metric-label">Score GreenOps</div>
-            </div>
+            <!-- SCORES -->
+            <div class="metrics-scores">
 
-            <div class="metric-card" v-if="displayedMetrics.ecoRating !== undefined">
-              <div class="metric-icon">📈</div>
-              <div class="metric-value">{{ displayedMetrics.ecoRating }}<span class="metric-unit">/5</span></div>
-              <div class="metric-label">Score FinOps</div>
-            </div>
+              <div class="metric-card small" v-if="displayedMetrics.valueSaved !== undefined">
+                <div class="label">Valeur créée</div>
+                <div class="value">{{ fmt(displayedMetrics.valueSaved, 2) }} €</div>
+              </div>
 
-            <div class="metric-card" v-if="displayedMetrics.riskScore !== undefined">
-              <div class="metric-icon">⚠</div>
-              <div class="metric-value">{{ displayedMetrics.riskScore }}<span class="metric-unit">/5</span></div>
-              <div class="metric-label">Score de Risque</div>
+              <div class="metric-card small" v-if="displayedMetrics.efficiencyRating !== undefined">
+                <div class="label">Efficacité</div>
+                <div class="value">{{ displayedMetrics.efficiencyRating }}/5</div>
+              </div>
+
+              <div class="metric-card small" v-if="displayedMetrics.envRating !== undefined">
+                <div class="label">GreenOps</div>
+                <div class="value">{{ displayedMetrics.envRating }}/5</div>
+              </div>
+
+              <div class="metric-card small" v-if="displayedMetrics.ecoRating !== undefined">
+                <div class="label">FinOps</div>
+                <div class="value">{{ displayedMetrics.ecoRating }}/5</div>
+              </div>
+
+              <div class="metric-card small" v-if="displayedMetrics.riskScore !== undefined">
+                <div class="label">Risque</div>
+                <div class="value">{{ displayedMetrics.riskScore }}/5</div>
+              </div>
+
             </div>
 
           </div>
@@ -497,37 +539,89 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
       </div>
 
 
-      <div class="right-sidebar">
+      <div class="right-sidebar" v-if="showHistory">
         <div class="rs-header">
-          <h3 class="panel-title">Vos Évaluations</h3>
+          <h3 class="panel-title">Historique des évaluations</h3>
           <button @click="handleHistorySearch" class="refresh-btn" :disabled="historyLoading">
             ↻
           </button>
         </div>
 
         <p v-if="historyError" class="sb-error">{{ historyError }}</p>
-        <p v-if="historyLoading" class="loading-text">Chargement de l'historique...</p>
-        
+        <p v-if="historyLoading" class="loading-text">
+          Chargement de l'historique...
+        </p>
+
         <div v-else-if="historySearched" class="history-list">
-          <p v-if="historyItems.length === 0" class="no-results">Aucun résultat trouvé</p>
-          <div v-for="item in historyItems" :key="item.evaluationId || item.id" class="history-item">
+
+          <p v-if="historyItems.length === 0" class="no-results">
+            Aucun résultat trouvé
+          </p>
+
+          <div
+            v-for="item in historyItems"
+            :key="item.evaluationId || item.id"
+            class="history-item"
+          >
+
+            <!-- HEADER -->
             <div class="hi-top">
-              <span class="hi-model">{{ item.modelName || item.aiModel }}</span>
+              <span class="hi-model">
+                {{ item.modelName || item.aiModel }}
+              </span>
+
               <span class="hi-status" :class="item.isApproved ? 'approved' : 'rejected'">
-                {{ item.isApproved ? '✓' : '✗' }}
+                {{ item.isApproved ? 'APPROUVÉ' : 'REJETÉ' }}
               </span>
             </div>
+
+            <!-- META -->
             <div class="hi-meta">
-              <span>#{{ item.evaluationId || item.id }}</span>
-              <span v-if="item.aiScore" class="hi-score">{{ item.aiScore }}</span>
+              <span>ID: {{ item.evaluationId || item.id }}</span>
+
+              <span v-if="item.aiScore">
+                Score IA: {{ item.aiScore }}
+              </span>
+
+              <span v-if="item.riskScore">
+                Risque: {{ item.riskScore }}/5
+              </span>
             </div>
+
+            <!-- IMPACT -->
             <div class="hi-values">
-              <span>🌱 {{ fmt(item.totalCarbonKg || item.carbonFootprint, 4) }} kg</span>
-              <span>{{ formatDate(item.createdAt) }}</span>
+              <span>
+                CO₂: {{ fmt(item.totalCarbonKg || item.carbonFootprint, 4) }} kg
+              </span>
+
+              <span v-if="item.energyKwh">
+                Énergie: {{ fmt(item.energyKwh, 4) }} kWh
+              </span>
             </div>
+
+            <div class="hi-values">
+              <span v-if="item.waterFootprintLiters">
+                Eau: {{ fmt(item.waterFootprintLiters, 4) }} L
+              </span>
+
+              <span v-if="item.costUsd">
+                Coût: {{ fmt(item.costUsd, 4) }} $
+              </span>
+            </div>
+
+            <div class="hi-values">
+              <span v-if="item.hoursSaved">
+                Temps gagné: {{ item.hoursSaved }} h
+              </span>
+
+              <span>
+                {{ formatDate(item.createdAt) }}
+              </span>
+            </div>
+
           </div>
         </div>
-      </div>
+</div>
 
     </div>
   
@@ -539,7 +633,7 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f0f2f5;
+  background:  #194a3e;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -570,6 +664,7 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
   position: sticky;
   top: 0;
   z-index: 100;
+  background: #407a69;
 }
 
 .header-content {
@@ -586,19 +681,37 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
   font-size: 1.6rem;
 }
 
+h1 {
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 0.8rem;
+  font-size: 2.3rem;
+  font-weight: 700;
+}
+
 .logout-btn {
-  background: rgba(255, 255, 255, 0.15);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3fbf8f, #2f9d74);
   color: white;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  padding: 0.45rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
+  font-size: 1.1rem;
   font-weight: 600;
-  transition: background 0.2s;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
 .logout-btn:hover {
-  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+.logout-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .page-body {
@@ -607,6 +720,16 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
   width: 100%;
   max-width: 1400px; /* Limite la largeur totale */
   margin: 0 auto;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 /* ── Sidebar ─────────────────────────────────────────── */
@@ -674,35 +797,47 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
 /* ── Tabs Navigation ─────────────────────────────────────────── */
 .tabs-container {
   display: flex;
-  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  backdrop-filter: blur(10px);
   margin-bottom: 1.5rem;
-  background: #f8f9fa;
-  padding: 0.5rem;
-  border-radius: 8px;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
 }
 
+/* bouton base */
 .tab-btn {
   flex: 1;
-  padding: 0.75rem;
+  padding: 0.7rem 1rem;
   border: none;
   background: transparent;
-  border-radius: 6px;
-  font-weight: 600;
-  color: #666;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.9rem;
 }
 
+/* hover soft */
 .tab-btn:hover {
-  background: #e9ecef;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
 }
 
+/* actif */
 .tab-btn.active {
-  background: darkblue;
+  background: linear-gradient(135deg, #3fbf8f, #2f9d74);
   color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 139, 0.25);
+  box-shadow: 0 6px 18px rgba(47, 157, 116, 0.25);
+}
+
+/* focus clean (accessibilité) */
+.tab-btn:focus {
+  outline: none;
 }
 
 .highlight-card {
@@ -891,27 +1026,40 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+
+  /* cohérence login */
+  background: transparent;
 }
 
 .form-card {
-  background: white;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 1000px;
+  margin: 0 auto;
+
+  padding: 2.5rem;
+
+  background: #407a69;
+  backdrop-filter: blur(18px);
+
+  border-radius: 18px;
+
+  border: 1px solid rgba(88, 199, 154, 0.25);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  color: white;
 }
 
 .form-title {
   text-align: center;
-  color: #222;
-  font-size: 1.5rem;
-  margin: 0 0 0.4rem;
+  color: #ffffff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
 }
 
 .form-subtitle {
   text-align: center;
-  color: #666;
-  font-size: 0.9rem;
-  margin: 0 0 1.75rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 2.5rem;
+  font-size: 1.05rem;
 }
 
 .eval-form {
@@ -932,27 +1080,55 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  margin-bottom: 1.6rem;
 }
 
 .form-group label {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #333;
+  display: block;
+  margin-bottom: 0rem;
+  color: white;
 }
 
-.form-group input:not(.range-input) {
-  padding: 0.7rem;
-  border: 2px solid #ddd;
-  border-radius: 5px;
+.form-group input,
+.select-input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+
+  border-radius: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+
+  color: white;
   font-size: 0.95rem;
-  font-family: inherit;
-  transition: border-color 0.2s;
+
+  transition: all 0.25s ease;
 }
 
-.form-group input:not(.range-input):focus {
+.form-group input:focus,
+.select-input:focus {
   outline: none;
-  border-color: darkblue;
-  box-shadow: 0 0 0 3px rgba(0, 0, 128, 0.1);
+
+  border-color: rgba(88, 199, 154, 0.8);
+
+  box-shadow:
+    0 0 0 4px rgba(88, 199, 154, 0.15),
+    0 8px 20px rgba(0, 0, 0, 0.15);
+
+  transform: translateY(-1px);
+}
+
+.select-input:focus {
+  background: #4f8475;
+  border-radius: 15px;
+}
+
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .range-input {
@@ -975,7 +1151,6 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
 .section-sep {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #555;
   border-bottom: 1px solid #eee;
   padding-bottom: 0.4rem;
   margin-bottom: -0.25rem;
@@ -999,33 +1174,67 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
 }
 
 .submit-btn {
-  padding: 0.85rem 2.5rem;
-  background: darkblue;
-  color: white;
+  padding: 1rem 2rem;
   border: none;
-  border-radius: 5px;
-  font-size: 1rem;
+  border-radius: 12px;
+
+  background: linear-gradient(135deg, #3fbf8f, #2f9d74);
+  color: white;
+
+  font-size: 1.1rem;
   font-weight: 600;
+
   cursor: pointer;
-  transition: opacity 0.2s;
+
+  transition: all 0.25s ease;
+  box-shadow: 0 10px 25px rgba(47, 157, 116, 0.25);
 }
 
-.submit-btn:hover:not(:disabled) { opacity: 0.87; }
-.submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  opacity: 0.95;
+  box-shadow: 0 14px 35px rgba(47, 157, 116, 0.35);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
 
 .reset-btn {
-  padding: 0.85rem 2rem;
-  background: #f0f0f0;
-  color: #333;
-  border: 2px solid #ddd;
-  border-radius: 5px;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 1rem 2rem;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+
+  color: rgba(255, 255, 255, 0.85);
+
+  font-size: 1.05rem;
+  font-weight: 500;
+
   cursor: pointer;
-  transition: background 0.2s;
+
+  transition: all 0.25s ease;
 }
 
-.reset-btn:hover { background: #e4e4e4; }
+.reset-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(88, 199, 154, 0.4);
+  color: #ffffff;
+}
+
+.reset-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 
 /* ── Results ─────────────────────────────────────────── */
 .results-section {
@@ -1066,11 +1275,18 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
   font-weight: 800;
   padding: 0.3rem 0.75rem;
   border-radius: 4px;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.8px;  
 }
 
-.status-badge.approved { background: #27ae60; color: white; }
-.status-badge.rejected { background: #e74c3c; color: white; }
+.status-badge.approved {
+  background: linear-gradient(135deg, #3fbf8f, #2f9d74);
+  color: white;
+}
+
+.status-badge.rejected {
+  background: linear-gradient(135deg, #e85d5d, #c94242);
+  color: white;
+}
 
 .eval-id {
   font-size: 0.9rem;
@@ -1085,57 +1301,134 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
   line-height: 1.5;
 }
 
-.metrics-grid {
+.metrics-wrapper {
+  max-width: 750px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+/* HERO MODEL (FORT IMPACT) */
+.metrics-hero {
+  width: 100%;
+  background: linear-gradient(135deg, #3fbf8f, #2f9d74);
+  border-radius: 18px;
+  padding: 2rem;
+  text-align: center;
+  color: white;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+}
+
+.hero-label {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hero-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-top: 0.5rem;
+}
+
+/* ENV BLOCK */
+.metrics-block {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+  width: 100%;
+}
+
+/* COST centered but strong */
+.metrics-cost {
+  width: 60%;
 }
 
 .metric-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1.25rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  padding: 1.5rem;
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  backdrop-filter: blur(12px);
+  color: white;
 }
 
-.metric-icon {
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
-}
-
-.metric-value {
-  font-size: 1.3rem;
+/* BIG cards (env impact) */
+.metric-card.big .value {
+  font-size: 1.25rem;
   font-weight: 700;
-  color: darkblue;
-  margin-bottom: 0.25rem;
-  word-break: break-all;
 }
 
-.metric-unit {
-  font-size: 0.85rem;
-  font-weight: 400;
-  color: #666;
+/* COST card = special highlight */
+.metric-card.cost {
+  border: none;
+  color: white;
 }
 
-.metric-label {
-  font-size: 0.78rem;
-  color: #888;
+/* SCORES */
+.metrics-scores {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.8rem;
+  width: 100%;
+}
+
+/* SMALL cards */
+.metric-card.small {
+  padding: 1rem;
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+/* labels */
+.label {
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  opacity: 0.7;
+  letter-spacing: 0.8px;
+}
+
+/* values */
+.value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-top: 0.3rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .metrics-block {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-scores {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .metrics-cost {
+    width: 100%;
+  }
 }
 
 /* ── Right Sidebar (Historique) ───────────────────────── */
 .right-sidebar {
+  position: fixed;
+  top: 80px;
+  right: 0;
   width: 320px;
-  flex-shrink: 0;
-  background: #ffffff;
-  border-left: 2px solid #e4e8ec;
+  height: calc(100vh - 80px);
+
+  background: #407a69;
+
   padding: 1.5rem;
-  height: calc(100vh - 80px); /* Hauteur moins le header */
-  position: sticky;
-  top: 80px; /* Colle la barre sous le header */
+
+  z-index: 9999;
+  overflow-y: auto;
+  color: white;
 }
 
 .rs-header {
@@ -1143,8 +1436,17 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.2rem;
-  border-bottom: 1px solid #e4e8ec;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.panel-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .refresh-btn {
@@ -1173,9 +1475,29 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
   }
 }
 
+.result-top-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
 
+.doc-btn {
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: linear-gradient(135deg, #3fbf8f, #2f9d74);
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
 
-/* ── Responsive ──────────────────────────────────────── */
+.doc-btn:hover {
+  transform: translateY(-1px);
+}
+
 @media (max-width: 700px) {
   .two-cols, .three-cols { grid-template-columns: 1fr; }
   .metrics-grid { grid-template-columns: 1fr 1fr; }
@@ -1190,5 +1512,84 @@ const fmt = (n, d = 6) => (n == null ? '-' : Number(n).toFixed(d))
   .tabs-container { flex-direction: column; }
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.history-btn {
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.history-btn:hover {
+  background: rgba(255,255,255,0.15);
+  transform: translateY(-1px);
+}
+
+.doc-btn-header {
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.08);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.doc-btn-header:hover {
+  background: rgba(255,255,255,0.15);
+  transform: translateY(-1px);
+}
+
+
+.history-item {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+
+  padding: 0.8rem 0.9rem;
+  font-size: 0.8rem;
+
+  color: white;
+
+  backdrop-filter: blur(10px);
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.history-item:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-2px);
+  border-color: rgba(88, 199, 154, 0.4);
+}
+
+.hi-model {
+  font-weight: 600;
+  color: white;
+  max-width: 180px;
+}
+
+.hi-meta,
+.hi-values {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.hi-status.approved {
+  color: #3fbf8f;
+}
+
+.hi-status.rejected {
+  color: #ff6b6b;
+}
 
 </style>
